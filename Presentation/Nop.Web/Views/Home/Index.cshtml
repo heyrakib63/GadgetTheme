@@ -1,0 +1,85 @@
+﻿@using Nop.Services.Localization
+@using Nop.Core
+@inject ILocalizationService localizationService
+@inject IStoreContext storeContext
+
+@{
+    Layout = "_ColumnsOne";
+
+    var homepageTitle = await localizationService.GetLocalizedAsync(await storeContext.GetCurrentStoreAsync(), s => s.HomepageTitle);
+
+    //title
+    if (!string.IsNullOrEmpty(homepageTitle))
+    {
+        NopHtml.AddTitleParts(homepageTitle);
+    }
+
+    var homepageDescription = await localizationService.GetLocalizedAsync(await storeContext.GetCurrentStoreAsync(), s => s.HomepageDescription);
+
+    //meta
+    if (!string.IsNullOrEmpty(homepageDescription))
+    {
+        NopHtml.AddMetaDescriptionParts(homepageDescription);
+    }
+
+    //page class
+    NopHtml.AppendPageCssClassParts("html-home-page");
+}
+<div class="page home-page">
+    <div class="page-body">
+		<div class="container the-swipper-area">
+			<div class="row">
+				<div class="left-promotion size-3">
+					<div class="promotion-image">
+						<img src="@Url.Content("~/Themes/GadgetTheme/Content/images/promotion.jpg")" />
+					</div>
+					<div class="promo-desc">
+						<img src="@Url.Content("~/Themes/GadgetTheme/Content/images/left-promo-icon1.png")" />
+						<h3> Free Sheeping</h3>
+						<p>ree shipping on all US orders. Nunc volutpat nisl ac. See our FAQ or contact us.</p>
+					</div>
+					<div class="promo-desc">
+						<img src="@Url.Content("~/Themes/GadgetTheme/Content/images/left-promo-icon2.png")" />
+						<h3> Free Sheeping</h3>
+						<p>ree shipping on all US orders. Nunc volutpat nisl ac. See our FAQ or contact us.</p>
+					</div>
+				</div>
+				<div class="right-swipper-promotion size-9">
+					<div class="the-carousel">
+						@* @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "HomepageText" }) *@
+						@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageTop })
+						@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
+					</div>
+					<div class="bottom-of-swipper">
+						<div class="bottom-swipper-left">
+							<img src="@Url.Content("~/Themes/GadgetTheme/Content/images/right-promo1.jpg")" />
+						</div>
+						<div class="bottom-swipper-right">
+							<img src="@Url.Content("~/Themes/GadgetTheme/Content/images/right-promo2.jpg")" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="popular-category">
+			<div class="pop-cat-header">
+				<h2>Popular Categories</h2>
+			</div>
+			<div class="the-catagory-swipper">
+				@await Component.InvokeAsync(typeof(HomepageCategoriesViewComponent))
+				@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
+			</div>
+		</div>
+
+			
+			@await Component.InvokeAsync(typeof(HomepageProductsViewComponent))
+			@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeBestSellers })
+			@await Component.InvokeAsync(typeof(HomepageBestSellersViewComponent))
+			@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforeNews })
+			@await Component.InvokeAsync(typeof(HomepageNewsViewComponent))
+			@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBeforePoll })
+			@await Component.InvokeAsync(typeof(HomepagePollsViewComponent))
+			@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageBottom })
+    </div>
+</div>

@@ -1,0 +1,7 @@
+﻿{
+  "SystemName": "GadgetTheme",
+  "FriendlyName": "Gadget Theme",
+  "SupportRTL": true,
+  "PreviewImageUrl": "~/Themes/GadgetTheme/preview.jpg",
+  "PreviewText": "The 'GadgetTheme' site theme"
+}
