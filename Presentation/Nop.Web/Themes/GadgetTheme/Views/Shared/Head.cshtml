@@ -6,13 +6,16 @@
 @inject IUserAgentHelper userAgentHelper
 
 @{
-    Layout ="";
-    var themeName = await themeContext.GetWorkingThemeNameAsync();
-    var supportRtl = await Html.ShouldUseRtlThemeAsync();
+	Layout ="";
+	var themeName = await themeContext.GetWorkingThemeNameAsync();
+	var supportRtl = await Html.ShouldUseRtlThemeAsync();
 
-    //add main CSS file
-    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles{(supportRtl ? ".rtl" : "")}.css");
-    
+	//add main CSS file
+	NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles{(supportRtl ? ".rtl" : "")}.css");
+
+	//Add fontawesome cdn
+	NopHtml.AppendCssFileParts("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css");
+
     //add swiper css file
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)
     {

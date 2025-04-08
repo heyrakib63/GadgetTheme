@@ -18,6 +18,8 @@
 	}
 	@if (!string.IsNullOrEmpty(Model.InstagramLink))
 	{
-		<li class="instagram"><a href="@Model.InstagramLink" target="_blank" rel="noopener noreferrer">@T("Footer.FollowUs.Instagram")</a></li>
+		@* <li class="instagram"><a href="@Model.InstagramLink" target="_blank" rel="noopener noreferrer">@T("Footer.FollowUs.Instagram")</a></li> *@
+		@* <li class="instagram"> <a href="@Model.InstagramLink" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram"></i></a></li> *@
+		<li class="instagram"><i class="fa-brands fa-instagram"></i></li>
 	}
 </ul>

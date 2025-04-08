@@ -6,12 +6,39 @@
             <strong>@T("Homepage.Products")</strong>
         </div>
         <div class="item-grid">
-            @foreach (var item in Model)
-            {
-                <div class="item-box">
-                    @await Html.PartialAsync("_ProductBox", item)
-                </div>
-            }
+
+			<div class="swiper featured-products-swiper">
+				<div class="swiper-wrapper">
+					@foreach (var item in Model)
+					{
+						<div class="item-box swiper-slide">
+							@await Html.PartialAsync("_ProductBox", item)
+						</div>
+					}
+				</div>
+			</div>
         </div>
     </div>
+
+	<script>
+		var swiper = new Swiper(".featured-products-swiper", {
+			slidesPerView: 3,
+			spaceBetween: 20,
+			navigation: {
+				nextEl: ".swiper-button-next",
+				prevEl: ".swiper-button-prev",
+			},
+			pagination: {
+				el: ".swiper-pagination",
+				clickable: true,
+			},
+			loop: true,
+			breakpoints: {
+				1024: { slidesPerView: 3 },
+				768: { slidesPerView: 2 },
+				480: { slidesPerView: 1 },
+			}
+		});
+	</script>
+
 }
