@@ -233,4 +233,6 @@ public static partial class PublicWidgetZones
     public static string VendorInfoTop => "vendor_info_top";
     public static string WishlistBottom => "wishlist_bottom";
     public static string WishlistTop => "wishlist_top";
+
+    public static object HomepageBeforeFooter { get; set; }
 }

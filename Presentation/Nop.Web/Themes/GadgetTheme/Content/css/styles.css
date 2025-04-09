@@ -9568,6 +9568,117 @@ li.instagram {
   color: #333;
   font-style: italic;
 }
+
+
+/* Basic styles for the manufacturer gallery */
+.manufacturer-gallery {
+  width: 100%;
+  max-width: 1200px; /* Limits the width of the gallery */
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+  .manufacturer-gallery h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+/* Scoped styles for the specific swiper (only for the manufacturer gallery swiper) */
+.swiper.featured-manufacturer-swiper {
+  position: relative;
+}
+
+  .swiper.featured-manufacturer-swiper .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+    /* Hover effect for swiper-slide */
+    .swiper.featured-manufacturer-swiper .swiper-slide:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Styling for the image inside the swiper-slide */
+    .swiper.featured-manufacturer-swiper .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Ensures image aspect ratio is preserved */
+      border-radius: 10px;
+    }
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .swiper.featured-manufacturer-swiper .swiper-slide {
+    max-width: 80%; /* Allow images to be a little smaller on tablet */
+  }
+}
+
+@media (max-width: 768px) {
+  .swiper.featured-manufacturer-swiper .swiper-slide {
+    max-width: 90%; /* On smaller screens, images take more space */
+  }
+
+  .manufacturer-gallery h2 {
+    font-size: 2rem; /* Reduce heading size for mobile */
+  }
+}
+
+/* Navigation buttons styling */
+.swiper.featured-manufacturer-swiper .swiper-button-next,
+.swiper.featured-manufacturer-swiper .swiper-button-prev {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.swiper.featured-manufacturer-swiper .swiper-button-next {
+  right: 10px;
+}
+
+.swiper.featured-manufacturer-swiper .swiper-button-prev {
+  left: 10px;
+}
+
+  .swiper.featured-manufacturer-swiper .swiper-button-next:hover,
+  .swiper.featured-manufacturer-swiper .swiper-button-prev:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+/* Pagination dots styling */
+.swiper.featured-manufacturer-swiper .swiper-pagination-bullet {
+  background-color: #000;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.swiper.featured-manufacturer-swiper .swiper-pagination-bullet-active {
+  background-color: #ff6f61;
+  opacity: 1;
+}
+
+/* Pagination hover effect */
+.swiper.featured-manufacturer-swiper .swiper-pagination-bullet:hover {
+  opacity: 1;
+}
+
   
 
 

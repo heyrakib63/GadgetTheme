@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "HelloWorld widget",
+  "SystemName": "Widget.HelloWorld",
+  "Version": "4.80.1",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widget.HelloWorld.dll",
+  "Description": "This plugin allows you to show the hello world message"
+}

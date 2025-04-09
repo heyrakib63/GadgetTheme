@@ -1,0 +1,16 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "Hello World",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "nopCommerce team, Rakib Hossain",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widgets.HelloWorld.dll",
+  "Description": "This plugin shows helloworld",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [],
+  "SystemName": "Widgets.HelloWorld",
+  "Version": "4.80.3"
+}

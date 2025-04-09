@@ -1,0 +1,16 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "ManufacturersSlider widget",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widgets.ManufacturersSlider.dll",
+  "Description": "This plugin allows you to change the contents of Manufacturers slider",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [],
+  "SystemName": "Widgets.ManufacturersSlider",
+  "Version": "4.80.1"
+}
