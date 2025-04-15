@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Misc",
+  "FriendlyName": "Supplier Management",
+  "SystemName": "Misc.SupplierManagement",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80", "4.83" ],
+  "Author": "YourName",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.SupplierManagement.dll",
+  "Description": "This plugin allows you to manage suppliers similar to vendors"
+}

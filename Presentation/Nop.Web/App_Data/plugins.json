@@ -108,8 +108,8 @@
       "Version": "4.80.1"
     },
     {
-      "SystemName": "Widgets.HelloWorld",
-      "Version": "4.80.3"
+      "SystemName": "GadgetTheme.SupplierManagement",
+      "Version": "1.00"
     }
   ],
   "PluginNamesToUninstall": [],

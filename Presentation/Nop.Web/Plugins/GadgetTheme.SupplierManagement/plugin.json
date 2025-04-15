@@ -1,0 +1,13 @@
+﻿{
+  "Group": "GadgetTheme",
+  "FriendlyName": "Supplier Management",
+  "SystemName": "GadgetTheme.SupplierManagement",
+  "Version": "1.00",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "Rakib Hossain",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.GadgetTheme.SupplierManagement.dll",
+  "Description": "This is a plugin that allows the admin to Create, View, Delete and Edit Suppliers"
+}
