@@ -1,0 +1,133 @@
+﻿
+
+@using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model
+@using Nop.Plugin.GadgetTheme.SupplierManagement.Domains
+@model SupplierSearchModel
+@using Nop.Services.Common
+@using Nop.Web.Framework.Models.DataTables
+
+@{
+    ViewBag.Title = "Supplier List";
+    Layout = "_AdminLayout";
+}
+
+@* @{ *@
+@*     const string hideSearchBlockAttributeName = "VendorsPage.HideSearchBlock"; *@
+@*     var hideSearchBlock = await GenericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName); *@
+@* } *@
+
+
+
+<div class="content-header clearfix">
+	<h1 class="float-left">
+		Suppliers
+	</h1>
+	<div class="float-right">
+		<a asp-action="Create" class="btn btn-primary">
+			<i class="fas fa-square-plus"></i>
+			AddNew
+		</a>
+		@* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.VendorListButtons, additionalData = Model }) *@
+	</div>
+</div>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="form-horizontal">
+			<div class="cards-group">
+				<div class="card card-default card-search">
+					<div class="card-body">
+						<div class="row search-row ">
+							<div class="search-text">Search</div>
+							<div class="icon-search"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-up" aria-hidden="true"></i></div>
+						</div>
+
+						<div class="search-body">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="SearchName" />
+										</div>
+										<div class="col-md-8">
+											<nop-editor asp-for="SearchName" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="SearchEmail" />
+										</div>
+										<div class="col-md-8">
+											<nop-editor asp-for="SearchEmail" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="text-center col-12">
+									<button type="button" id="search-vendors" class="btn btn-primary btn-search">
+										<i class="fas fa-magnifying-glass"></i>
+										Search
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+				
+				<div class="card card-default">
+					<div class="card-body">
+						@* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.VendorManagement", Docs.VendorManagement + Utm.OnAdmin)" /> *@
+
+						@await Html.PartialAsync("Table", new DataTablesModel
+							{
+								Name = "suppliers-grid",
+								UrlRead = new DataUrl("List", "Supplier", null),
+								Length = Model.PageSize,
+								LengthMenu = Model.AvailablePageSizes,
+								// Paging = false,
+								Filters = new List<FilterParameter>
+									{
+									new FilterParameter(nameof(Model.Name)),
+									new FilterParameter(nameof(Model.Email))
+									},
+								ColumnCollection = new List<ColumnProperty>
+									{
+									new ColumnProperty(nameof(SupplierModel.Name))
+									{
+									Title = "Name",
+									Width = "300"
+									},
+									new ColumnProperty(nameof(SupplierModel.Email))
+									{
+									Title = "Email",
+									Width = "300"
+									},
+									new ColumnProperty(nameof(SupplierModel.Id))
+									{
+									Title = "Edit",
+									Width = "50",
+									ClassName =  NopColumnClassDefaults.Button,
+									Render = new RenderButtonEdit(new DataUrl("Edit"))
+									},
+									new ColumnProperty(nameof(SupplierModel.Id))
+									{
+									Title = "Delete",
+									Width = "50",
+									ClassName =  NopColumnClassDefaults.Button,
+									Render = new RenderButtonRemove(new DataUrl("Delete").Url)
+									}
+									}
+							})
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

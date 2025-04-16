@@ -1,6 +1,8 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Nop.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
+using Nop.Services.Common;
 using Nop.Web.Framework.Infrastructure.Extensions;
 
 namespace Nop.Web;
@@ -16,11 +18,14 @@ public partial class Program
         {
             var path = string.Format(NopConfigurationDefaults.AppSettingsEnvironmentFilePath, builder.Environment.EnvironmentName);
             builder.Configuration.AddJsonFile(path, true, true);
+
         }
         builder.Configuration.AddEnvironmentVariables();
 
         //load application settings
         builder.Services.ConfigureApplicationSettings(builder);
+
+       
 
         var appSettings = Singleton<AppSettings>.Instance;
         var useAutofac = appSettings.Get<CommonConfig>().UseAutofac;

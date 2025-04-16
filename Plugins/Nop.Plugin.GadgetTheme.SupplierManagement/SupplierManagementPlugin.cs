@@ -5,6 +5,7 @@ using Nop.Services.Events;
 using Nop.Services.Security;
 using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Menu;
+using Nop.Core;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement;
 
@@ -13,11 +14,13 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement;
 /// </summary>
 public class SupplierManagementPlugin : BasePlugin
 {
+    private readonly IWebHelper _webHelper;
     protected readonly ILocalizationService _localizationService;
 
-    public SupplierManagementPlugin(ILocalizationService localizationService)
+    public SupplierManagementPlugin(ILocalizationService localizationService, IWebHelper webHelper)
     {
         _localizationService = localizationService;
+        _webHelper = webHelper;
     }
 
     //public bool HideInWidgetList => false;
@@ -36,6 +39,26 @@ public class SupplierManagementPlugin : BasePlugin
 
     public override async Task InstallAsync()
     {
+
+        await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+        {
+
+            ["Admin.GadgetTheme.Suppliers"] = "Suppliers",
+            ["Admin.GadgetTheme.Suppliers.AddNew"] = "Add new Suppliers",
+            ["Admin.GadgetTheme.Suppliers.EditDetails"] = "Edit Supplier Details",
+            ["Admin.GadgetTheme.Suppliers.BackToList"] = "Back to Supplier List",
+
+
+            ["Admin.GadgetTheme.Suppliers.Fields.Name"] = "Name",
+
+            ["Admin.GadgetTheme.Suppliers.Fields.Name.Hint"] = "Enter Supplier Name.",
+
+
+            ["Admin.GadgetTheme.Suppliers.List.Name"] = "Name",
+            ["Admin.GadgetTheme.Suppliers.List.Email"] = "Email",
+            ["Admin.GadgetTheme.Suppliers.List.SupplierName.Hint"] = "Search by Supplier Name",
+            ["Admin.GadgetTheme.Suppliers.List.SupplierEmail.Hint"] = "Search by Employee Email",
+        });
         // Add the "Suppliers" menu item
         //await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
         //{

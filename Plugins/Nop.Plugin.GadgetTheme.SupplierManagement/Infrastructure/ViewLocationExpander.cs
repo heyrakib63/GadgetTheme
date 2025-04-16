@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor;
+using Nop.Core.Infrastructure;
+using Nop.Web.Framework.Themes;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
 
@@ -11,8 +13,10 @@ public class ViewLocationExpander : IViewLocationExpander
     /// </summary>
     /// <param name="context">The <see cref="T:Microsoft.AspNetCore.Mvc.Razor.ViewLocationExpanderContext" /> for the current view location
     /// expansion operation.</param>
+    protected const string THEME_KEY = "nop.themename";
     public void PopulateValues(ViewLocationExpanderContext context)
     {
+        context.Values[THEME_KEY] = EngineContext.Current.Resolve<IThemeContext>().GetWorkingThemeNameAsync().Result;
     }
 
     /// <summary>
@@ -26,11 +30,19 @@ public class ViewLocationExpander : IViewLocationExpander
     {
         if (context.AreaName == "Admin")
         {
-            viewLocations = new[] { $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{context.ControllerName}/{context.ViewName}.cshtml" }.Concat(viewLocations);
+            viewLocations = new string[]
+            {
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{1}}/{{0}}.cshtml"
+            }.Concat(viewLocations);
         }
         else
         {
-            viewLocations = new[] { $"/Plugins/GadgetTheme.SupplierManagement/Views/{context.ControllerName}/{context.ViewName}.cshtml" }.Concat(viewLocations);
+            viewLocations = new string[]
+            {
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{1}}/{{0}}.cshtml"
+            }.Concat(viewLocations);
         }
 
         return viewLocations;

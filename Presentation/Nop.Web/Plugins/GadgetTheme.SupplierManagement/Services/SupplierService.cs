@@ -16,15 +16,30 @@ public class SupplierService : ISupplierServices
         _htmlFormatter = htmlFormatter;
     }
 
-    public async Task<IPagedList<Supplier>> GetAllSupplierAsync(int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<Supplier>> SearchSupplierAsync(string name = "", string email = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var suppliers = await _supplierRepository.GetAllPagedAsync(query =>
-        {
-            query = query.OrderBy(v => v.SupplierName);
-            return query;
-        }, pageIndex, pageSize);
 
-        return suppliers;
+
+        var query = from e in _supplierRepository.Table
+                    select e;
+
+        if (!string.IsNullOrEmpty(name))
+            query = query.Where(e => e.SupplierName.Contains(name));
+        if (!string.IsNullOrEmpty(email))
+            query = query.Where(e => e.SupplierEmail == email);
+        query = query.OrderBy(e => e.SupplierName);
+
+        return await query.ToPagedListAsync(pageIndex, pageSize);
+
+
+
+        //var suppliers = await _supplierRepository.GetAllPagedAsync(query =>
+        //{
+        //    query = query.OrderBy(v => v.SupplierName);
+        //    return query;
+        //}, pageIndex, pageSize);
+
+        //return suppliers;
     }
 }
 //{

@@ -13,8 +13,8 @@ internal class RouteProvider : IRouteProvider
     // Implementing the RegisterRoutes method from IRouteProvider
     public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
     {
-        endpointRouteBuilder.MapControllerRoute("Plugin.GadgetTheme.SupplierManagement", "Plu/Areas/Admin/Supplier/List",
-            new { controller = "Supplier", action = "GetAllSupplier" });
+        //endpointRouteBuilder.MapControllerRoute("Plugin.GadgetTheme.SupplierManagement", "Plugins/Areas/Admin/Supplier/List",
+        //    new { controller = "Supplier", action = "GetAllSupplier" });
     }
 
     // Implementing the Priority property from IRouteProvider
