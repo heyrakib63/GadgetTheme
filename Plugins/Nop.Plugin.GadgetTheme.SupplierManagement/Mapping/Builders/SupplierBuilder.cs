@@ -18,7 +18,7 @@ public class SupplierBuilder : NopEntityBuilder<Supplier>
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
         //map the primary key (not necessary if it is Id field)
-        table.WithColumn(nameof(Supplier.Id)).AsInt32().PrimaryKey()
+        table.WithColumn(nameof(Supplier.Id)).AsInt32().PrimaryKey().Identity()
 
         //map the additional properties as foreign keys
         //.WithColumn(nameof(Supplier.SupplierId)).AsInt32().ForeignKey<Supplier>(onDelete: Rule.Cascade)

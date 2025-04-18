@@ -6,8 +6,8 @@ using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Migrations;
 
-[NopSchemaMigration("2020/05/27 08:40:55:1687541", "GadgetTheme.SupplierManagement base schema", MigrationProcessType.Installation)]
-public class SchemaMigration : ForwardOnlyMigration
+[NopSchemaMigration("2025/05/11 07:35:50:1687541", "GadgetTheme.SupplierManagement sixth schema", MigrationProcessType.Installation)]
+public class SchemaMigration : AutoReversingMigration
 {
     public override void Up()
     {

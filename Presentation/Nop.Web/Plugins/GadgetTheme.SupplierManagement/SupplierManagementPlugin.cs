@@ -6,6 +6,7 @@ using Nop.Services.Security;
 using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Menu;
 using Nop.Core;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement;
 
@@ -23,19 +24,6 @@ public class SupplierManagementPlugin : BasePlugin
         _webHelper = webHelper;
     }
 
-    //public bool HideInWidgetList => false;
-
-    //public async Task<IList<string>> GetWidgetZonesAsync()
-    //{
-    //    // Return the widget zones where this plugin should be displayed
-    //    return await Task.FromResult(new List<string> { "home_page_top" });
-    //}
-
-    //public Type GetWidgetViewComponent(string widgetZone)
-    //{
-    //    // Return the view component type for the specified widget zone
-    //    return typeof(Components.SupplierManagementWidgetViewComponent);
-    //}
 
     public override async Task InstallAsync()
     {
@@ -43,27 +31,36 @@ public class SupplierManagementPlugin : BasePlugin
         await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
         {
 
-            ["Admin.GadgetTheme.Suppliers"] = "Suppliers",
-            ["Admin.GadgetTheme.Suppliers.AddNew"] = "Add new Suppliers",
-            ["Admin.GadgetTheme.Suppliers.EditDetails"] = "Edit Supplier Details",
-            ["Admin.GadgetTheme.Suppliers.BackToList"] = "Back to Supplier List",
+            ["Admin.Suppliers"] = "Suppliers",
+            ["Admin.Suppliers.AddNew"] = "Add new Suppliers",
+            ["Admin.Suppliers.EditDetails"] = "Edit Supplier Details",
+            ["Admin.Suppliers.BackToList"] = "Back to Supplier List",
 
 
-            ["Admin.GadgetTheme.Suppliers.Fields.Name"] = "Name",
+            ["Admin.Suppliers.Fields.Name"] = "Name",
+            ["Admin.Suppliers.Fields.Name.Hint"] = "Enter Supplier Name.",
+            ["Admin.Suppliers.Fields.Name.Required"] = "Name is Required",
+            ["Admin.Suppliers.Fields.Email"] = "Email",
+            ["Admin.Suppliers.Fields.Email.Hint"] = "Enter Supplier Email.",
+            ["Admin.Suppliers.Fields.Email.Required"] = "Email is Required",
+            ["Admin.Suppliers.Fields.Address"] = "Address",
+            ["Admin.Suppliers.Fields.Address.Hint"] = "Enter Supplier Address.",
+            ["Admin.Suppliers.Fields.Address.Required"] = "Address is Required",
 
-            ["Admin.GadgetTheme.Suppliers.Fields.Name.Hint"] = "Enter Supplier Name.",
+
+            ["Admin.Suppliers.List.Name"] = "Name",
+            ["Admin.Suppliers.List.Email"] = "Email",
+            ["Admin.Suppliers.List.Name.Hint"] = "Search by Supplier Name",
+            ["Admin.Suppliers.List.Email.Hint"] = "Search by Employee Email",
 
 
-            ["Admin.GadgetTheme.Suppliers.List.Name"] = "Name",
-            ["Admin.GadgetTheme.Suppliers.List.Email"] = "Email",
-            ["Admin.GadgetTheme.Suppliers.List.SupplierName.Hint"] = "Search by Supplier Name",
-            ["Admin.GadgetTheme.Suppliers.List.SupplierEmail.Hint"] = "Search by Employee Email",
+            ["Admin.Suppliers.Info"] = "Suppliers Info",
+
+            ["Admin.Suppliers.EditSupplierDetails"] = "Edit Supplier Details",
+            ["Admin.Suppliers.Updated"] = "Supplier Updated Successfully",
+            ["Admin.Suppliers.Deleted"] = "Deleted succusfully",
+            ["Admin.Suppliers.Added"] = "Created Successfully",
         });
-        // Add the "Suppliers" menu item
-        //await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-        //{
-        //    ["Admin.Menu.Suppliers"] = "Suppliers",
-        //});
 
         await base.InstallAsync();
     }
@@ -71,9 +68,54 @@ public class SupplierManagementPlugin : BasePlugin
     public override async Task UninstallAsync()
     {
         // Remove the "Suppliers" menu item
-        //await _localizationService.DeleteLocaleResourcesAsync("Plugins.GadgetTheme.SupplierManagement");
+        
         await base.UninstallAsync();
     }
+
+    public override async Task UpdateAsync(string oldVersion, string newVersion)
+    {
+        // You can log version transition if needed
+        // _logger.Information($"Updating from {oldVersion} to {newVersion}");
+
+        // Re-add or update resources
+        await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+        {
+
+            ["Admin.Suppliers"] = "Suppliers",
+            ["Admin.Suppliers.AddNew"] = "Add new Suppliers",
+            ["Admin.Suppliers.EditDetails"] = "Edit Supplier Details",
+            ["Admin.Suppliers.BackToList"] = "Back to Supplier List",
+
+
+            ["Admin.Suppliers.Fields.Name"] = "Name",
+            ["Admin.Suppliers.Fields.Name.Hint"] = "Enter Supplier Name.",
+            ["Admin.Suppliers.Fields.Name.Required"] = "Name is Required",
+            ["Admin.Suppliers.Fields.Email"] = "Email",
+            ["Admin.Suppliers.Fields.Email.Hint"] = "Enter Supplier Email.",
+            ["Admin.Suppliers.Fields.Email.Required"] = "Email is Required",
+            ["Admin.Suppliers.Fields.Address"] = "Address",
+            ["Admin.Suppliers.Fields.Address.Hint"] = "Enter Supplier Address.",
+            ["Admin.Suppliers.Fields.Address.Required"] = "Address is Required",
+
+
+            ["Admin.Suppliers.List.Name"] = "Name",
+            ["Admin.Suppliers.List.Email"] = "Email",
+            ["Admin.Suppliers.List.Name.Hint"] = "Search by Supplier Name",
+            ["Admin.Suppliers.List.Email.Hint"] = "Search by Employee Email",
+
+
+            ["Admin.Suppliers.Info"] = "Suppliers Info",
+
+            ["Admin.Suppliers.EditSupplierDetails"] = "Edit Supplier Details",
+            ["Admin.Suppliers.Updated"] = "Supplier Updated Successfully",
+            ["Admin.Suppliers.Deleted"] = "Deleted succusfully",
+            ["Admin.Suppliers.Added"] = "Created Successfully",
+            
+        });
+
+        await base.UpdateAsync(oldVersion, newVersion);
+    }
+
 }
 
 
@@ -107,3 +149,6 @@ public class EventConsumer : IConsumer<AdminMenuCreatedEvent>
             });
     }
 }
+
+
+

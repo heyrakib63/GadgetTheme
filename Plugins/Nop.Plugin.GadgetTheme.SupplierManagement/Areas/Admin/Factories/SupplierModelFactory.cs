@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 using LinqToDB.Common.Internal.Cache;
 using Microsoft.Extensions.Caching.Memory;
 using Nop.Core.Caching;
+using Nop.Core.Domain.Vendors;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
+using Nop.Services.Catalog;
 using Nop.Services.Localization;
+using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
 using Nop.Web.Framework.Models.Extensions;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Factories;
@@ -26,75 +29,46 @@ public class SupplierModelFactory : ISupplierModelFactory
         _supplierService = supplierService;
     }
 
+
+
+
+    // Return lists of Suppliers aka grid
     public async Task<SupplierListModel> PrepareSupplierListModelAsync(SupplierSearchModel searchModel)
     {
-        ArgumentNullException.ThrowIfNull(nameof(searchModel));
+        if (searchModel == null)
+            throw new ArgumentNullException(nameof(searchModel));
 
-        var suppliers = await _supplierService.SearchSupplierAsync(searchModel.Name,
-
+        var suppliers = await _supplierService.SearchSupplierAsync(searchModel.Name, searchModel.Email,
                        pageIndex: searchModel.Page - 1,
                        pageSize: searchModel.PageSize);
 
         //prepare grid model
-
         var count = suppliers.Count();
 
-
-
-
-        //var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.AdminEmployeeAllModelKey, searchModel.IsMVP, searchModel.IsCertified, 0);
-
-        //var output = await _staticCacheManager.GetAsync(cacheKey, async () =>
-        //{
-        //var model = await new SupplierListModel().PrepareToGridAsync(searchModel, suppliers, () =>
-        //{
-        //    return suppliers.SelectAwait(async supplier =>
-        //    {
-        //        return await PrepareSupplierModelAsync(null, supplier, true);
-        //    });
-        //});
-
-        //await _staticCacheManager.RemoveByPrefixAsync(NopModelCacheDefaults.PublicEmployeeAllPrefixCacheKey);
-
-        //return model;
-
-
-        output = await new EmployeeListModel().PrepareToGridAsync(searchModel, employees, () =>
+        var model = await new SupplierListModel().PrepareToGridAsync(searchModel, suppliers, () =>
         {
-            return employees.SelectAwait(async employee =>
+            return suppliers.SelectAwait(async supplier =>
             {
-                ////fill in model values from the entity
-                //var employeeModel = new EmployeeModel()
-                //{
-                //    Designation = employee.Designation,
-                //    EmployeeStatusId = employee.EmployeeStatusId,
-                //    Id = employee.Id,
-                //    Name = employee.Name,
-                //    IsCertified = employee.IsCertified,
-                //    IsMVP = employee.IsMVP,
-                //    EmployeeStatusStr = await _localizationService.GetLocalizedEnumAsync(employee.EmployeeStatus)
-                //};
-
-
-                return await PrepareEmployeeModelAsync(null, employee, true);
+                return await PrepareSupplierModelAsync(null, supplier, true);
             });
         });
 
-
-        //});
-
-        //    return output;
+        return model;
     }
 
 
 
 
 
+
+
+    // Returns the a single supplier model
     public async Task<SupplierModel> PrepareSupplierModelAsync(SupplierModel model, Supplier supplier, bool excludeProperties = false)
     {
         if (supplier != null)
         {
             if (model == null)
+            {
                 //fill in model values from the entity
                 model = new SupplierModel()
                 {
@@ -103,30 +77,25 @@ public class SupplierModelFactory : ISupplierModelFactory
                     Email = supplier.SupplierEmail,
                     Address = supplier.SupplierAddress,
                 };
+            }
         }
-
-        //if (!excludeProperties)
-        //    model.AvailableEmployeeStatusOptions = (await EmployeeStatus.Active.ToSelectListAsync()).ToList();
+        // Simulate async behavior to resolve CS1998
+        await Task.CompletedTask;
 
         return model;
     }
 
 
 
+
+    // For the search model. 
     public async Task<SupplierSearchModel> PrepareSupplierSearchModelAsync(SupplierSearchModel searchModel)
     {
-        ArgumentNullException.ThrowIfNull(nameof(searchModel));
+        if (searchModel == null)
+            throw new ArgumentNullException(nameof(searchModel));
 
-
-
-        //searchModel.AvailableEmployeeStatusOptions = (await EmployeeStatus.Active.ToSelectListAsync()).ToList();
-        //searchModel.AvailableEmployeeStatusOptions.Insert(0,
-        //     new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-        //     {
-        //         Text = "All",
-        //         Value = "0"
-
-        //     });
+        // Simulate async behavior to resolve CS1998
+        await Task.CompletedTask;
 
         //prepare page parameters
         searchModel.SetGridPageSize();

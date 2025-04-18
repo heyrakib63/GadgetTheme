@@ -1,20 +1,16 @@
 ﻿
-
-@using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model
-@using Nop.Plugin.GadgetTheme.SupplierManagement.Domains
 @model SupplierSearchModel
-@using Nop.Services.Common
-@using Nop.Web.Framework.Models.DataTables
 
 @{
     ViewBag.Title = "Supplier List";
     Layout = "_AdminLayout";
+	NopHtml.SetActiveMenuItemSystemName("Suppliers");
 }
 
-@* @{ *@
-@*     const string hideSearchBlockAttributeName = "VendorsPage.HideSearchBlock"; *@
-@*     var hideSearchBlock = await GenericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName); *@
-@* } *@
+@{ 
+ 	const string hideSearchBlockAttributeName = "SupplierPage.HideSearchBlock";
+ 	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
 
 
 
@@ -27,7 +23,7 @@
 			<i class="fas fa-square-plus"></i>
 			AddNew
 		</a>
-		@* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.VendorListButtons, additionalData = Model }) *@
+		@* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.SupplierListButtons, additionalData = Model }) *@
 	</div>
 </div>
 
@@ -37,38 +33,38 @@
 			<div class="cards-group">
 				<div class="card card-default card-search">
 					<div class="card-body">
-						<div class="row search-row ">
+						<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
 							<div class="search-text">Search</div>
 							<div class="icon-search"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></div>
-							<div class="icon-collapse"><i class="far fa-angle-up" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
 						</div>
 
-						<div class="search-body">
+						<div class="search-body @(hideSearchBlock ? "closed" : "")">
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group row">
 										<div class="col-md-4">
-											<nop-label asp-for="SearchName" />
+											<nop-label asp-for="Name" />
 										</div>
 										<div class="col-md-8">
-											<nop-editor asp-for="SearchName" />
+											<nop-editor asp-for="Name" />
 										</div>
 									</div>
 								</div>
 								<div class="col-md-6">
 									<div class="form-group row">
 										<div class="col-md-4">
-											<nop-label asp-for="SearchEmail" />
+											<nop-label asp-for="Email" />
 										</div>
 										<div class="col-md-8">
-											<nop-editor asp-for="SearchEmail" />
+											<nop-editor asp-for="Email" />
 										</div>
 									</div>
 								</div>
 							</div>
 							<div class="row">
 								<div class="text-center col-12">
-									<button type="button" id="search-vendors" class="btn btn-primary btn-search">
+									<button type="button" id="search-suppliers" class="btn btn-primary btn-search">
 										<i class="fas fa-magnifying-glass"></i>
 										Search
 									</button>
@@ -88,6 +84,7 @@
 						@await Html.PartialAsync("Table", new DataTablesModel
 							{
 								Name = "suppliers-grid",
+								SearchButtonId = "search-suppliers",
 								UrlRead = new DataUrl("List", "Supplier", null),
 								Length = Model.PageSize,
 								LengthMenu = Model.AvailablePageSizes,
@@ -125,6 +122,7 @@
 									}
 									}
 							})
+
 					</div>
 				</div>
 			</div>

@@ -26,46 +26,40 @@ public class SupplierService : ISupplierServices
         if (!string.IsNullOrEmpty(name))
             query = query.Where(e => e.SupplierName.Contains(name));
         if (!string.IsNullOrEmpty(email))
-            query = query.Where(e => e.SupplierEmail == email);
+            query = query.Where(e => e.SupplierEmail.Contains(email));
         query = query.OrderBy(e => e.SupplierName);
 
         return await query.ToPagedListAsync(pageIndex, pageSize);
-
-
-
-        //var suppliers = await _supplierRepository.GetAllPagedAsync(query =>
-        //{
-        //    query = query.OrderBy(v => v.SupplierName);
-        //    return query;
-        //}, pageIndex, pageSize);
-
-        //return suppliers;
     }
+
+    public virtual async Task<Supplier> GetSupplierByIdAsync(int supplierId)
+    {
+        return await _supplierRepository.GetByIdAsync(supplierId);
+    }
+
+    public virtual async Task InsertSupplierAsync(Supplier supplier)
+    {
+        await _supplierRepository.InsertAsync(supplier);
+    }
+
+    public virtual async Task UpdateSupplierAsync(Supplier supplier)
+    {
+        await _supplierRepository.UpdateAsync(supplier);
+    }
+
+    public virtual async Task DeleteSupplierAsync(Supplier supplier)
+    {
+        await _supplierRepository.DeleteAsync(supplier);
+    }
+
+
+
+
+
+
+
+
+
 }
-//{
-//    private readonly IAddressService _addressService;
-//    private readonly ICountryService _countryService;
-//    private readonly ICustomerService _customerService;
 
-//    public CustomersByCountry(IAddressService addressService,
-//        ICountryService countryService,
-//        ICustomerService customerService)
-//    {
-//        _addressService = addressService;
-//        _countryService = countryService;
-//        _customerService = customerService;
-//    }
 
-//    public async Task<List<CustomersDistribution>> GetCustomersDistributionByCountryAsync()
-//    {
-//        return await _customerService.GetAllCustomersAsync()
-//            .Where(c => c.ShippingAddressId != null)
-//            .Select(c => new
-//            {
-//                await (_countryService.GetCountryByAddressAsync(_addressService.GetAddressById(c.ShippingAddressId ?? 0))).Name,
-//                c.Username
-//            })
-//            .GroupBy(c => c.Name)
-//            .Select(cbc => new CustomersDistribution { Country = cbc.Key, NoOfCustomers = cbc.Count() }).ToList();
-//    }
-//}

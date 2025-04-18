@@ -13,8 +13,8 @@ public record SupplierSearchModel : BaseSearchModel
     {
         // Initialize any collections or properties if needed
     }
-    [NopResourceDisplayName("Plugins.GadgetTheme.SupplierManagement.Fields.Name")]
+    [NopResourceDisplayName("Admin.Suppliers.List.Name")]
     public string Name { get; set; }
-    [NopResourceDisplayName("Plugins.GadgetTheme.SupplierManagement.Fields.Email")]
+    [NopResourceDisplayName("Admin.Suppliers.List.Email")]
     public string Email { get; set; }
 }

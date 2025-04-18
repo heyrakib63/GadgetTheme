@@ -1,12 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿@model SupplierModel
 
-namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Supplier
-{
-    class Edit
-    {
-    }
+@{
+	//page title
+	ViewBag.PageTitle = T("Admin.Suppliers.EditSupplierDetails").Text;
+	//active menu item (system name)
+	NopHtml.SetActiveMenuItemSystemName("Suppliers");
+	Layout = "_AdminLayout";
 }
+
+<form asp-controller="Supplier" asp-action="Edit" method="post">
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			@T("Admin.Suppliers.EditSupplierDetails") - @Model.Name
+			<small>
+				<i class="fas fa-arrow-circle-left"></i>
+				<a asp-action="List">@T("Admin.Suppliers.BackToList")</a>
+			</small>
+		</h1>
+		<div class="float-right">
+			<button type="submit" name="save" class="btn btn-primary">
+				<i class="far fa-floppy-disk"></i>
+				@T("Admin.Common.Save")
+			</button>
+			<button type="submit" name="save-continue" class="btn btn-primary">
+				<i class="far fa-floppy-disk"></i>
+				@T("Admin.Common.SaveContinue")
+			</button>
+			<span id="supplier-delete" class="btn btn-danger">
+				<i class="far fa-trash-can"></i>
+				@T("Admin.Common.Delete")
+			</span>
+			@* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.VendorDetailsButtons, additionalData = Model }) *@
+		</div>
+	</div>
+	@await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="supplier-delete"/>
