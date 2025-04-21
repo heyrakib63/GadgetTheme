@@ -7,6 +7,7 @@ using Nop.Core.Infrastructure;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
+using Nop.Services.Cms;
 using Nop.Services.Common;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
@@ -32,6 +33,7 @@ public class NopStartup : INopStartup
         });
         services.AddScoped<ISupplierServices, SupplierService>();
         services.AddScoped<ISupplierModelFactory, SupplierModelFactory>();
+        services.AddScoped<IWidgetPlugin, SupplierManagementPlugin>();
     }
     /// <summary>
     /// Configure the using of added middleware

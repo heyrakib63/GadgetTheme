@@ -24,6 +24,7 @@
 				<span asp-validation-for="@Model.Locales[item].Address"></span>
 			</div>
 		</div>
+		<input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
 	</div>
 		,
 	@<div>

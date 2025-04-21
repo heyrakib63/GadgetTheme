@@ -8,4 +8,5 @@ using Nop.Web.Framework.Models;
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 public record SupplierList : BaseSearchModel
 {
+
 }

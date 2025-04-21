@@ -29,6 +29,7 @@ public record SupplierModel : BaseNopEntityModel, ILocalizedModel<SupplierLocali
 public partial record SupplierLocalizedModel : ILocalizedLocaleModel
 {
 
+    [NopResourceDisplayName("Admin.Suppliers.Fields.Language")]
     public int LanguageId { get; set; }
 
     [NopResourceDisplayName("Admin.Suppliers.Fields.Name")]

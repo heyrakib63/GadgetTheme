@@ -14,6 +14,8 @@ using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
+using Nop.Web.Areas.Admin.Models.Vendors;
+using Nop.Web.Framework.Factories;
 using Nop.Web.Framework.Models.Extensions;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Factories;
@@ -22,11 +24,13 @@ public class SupplierModelFactory : ISupplierModelFactory
 
     private readonly ILocalizationService _localizationService;
     private readonly ISupplierServices _supplierService;
+    private readonly ILocalizedModelFactory _localizedModelFactory;
 
-    public SupplierModelFactory(ILocalizationService localizationService, ISupplierServices supplierService)
+    public SupplierModelFactory(ILocalizationService localizationService, ISupplierServices supplierService, ILocalizedModelFactory localizedModelFactory)
     {
         _localizationService = localizationService;
         _supplierService = supplierService;
+        _localizedModelFactory = localizedModelFactory;
     }
 
 
@@ -65,6 +69,7 @@ public class SupplierModelFactory : ISupplierModelFactory
     // Returns the a single supplier model
     public async Task<SupplierModel> PrepareSupplierModelAsync(SupplierModel model, Supplier supplier, bool excludeProperties = false)
     {
+        Func<SupplierLocalizedModel, int, Task> localizedModelConfiguration = null;
         if (supplier != null)
         {
             if (model == null)
@@ -78,7 +83,17 @@ public class SupplierModelFactory : ISupplierModelFactory
                     Address = supplier.SupplierAddress,
                 };
             }
+            localizedModelConfiguration = async (locale, languageId) =>
+            {
+                locale.Name = await _localizationService.GetLocalizedAsync(supplier, entity => entity.SupplierName, languageId, false, false);
+                locale.Address = await _localizationService.GetLocalizedAsync(supplier, entity => entity.SupplierAddress, languageId, false, false);
+
+            };
         }
+       
+
+        if (!excludeProperties)
+            model.Locales = await _localizedModelFactory.PrepareLocalizedModelsAsync(localizedModelConfiguration);
         // Simulate async behavior to resolve CS1998
         await Task.CompletedTask;
 

@@ -1,44 +1,59 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using Nop.Core;
-//using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
-//using Nop.Services.Catalog;
-//using Nop.Services.Customers;
-//using Nop.Services.Orders;
-//using Nop.Web.Framework.Components;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Core;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Models;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
+using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Orders;
+using Nop.Web.Framework;
+using Nop.Web.Framework.Components;
 
-//namespace Nop.Plugin.GadgetTheme.SupplierManagement.Components;
+namespace Nop.Plugin.GadgetTheme.SupplierManagement.Components;
 
-//public class SupplierManagementWidgetViewComponent : NopViewComponent
-//{
+[Area("admin")]
+public class SupplierManagementWidgetViewComponent : NopViewComponent
+{
 
 
-//    private readonly ISupplierServices _supplierService;
-//    private readonly IWorkContext _workContext;
-//    public SupplierManagementWidgetViewComponent(ISupplierServices supplierServices, IWorkContext workContext)
-//    {
-//        _supplierService = supplierServices;
-//        _workContext = workContext;
-//    }
+    private readonly ISupplierServices _supplierService;
+    private readonly IWorkContext _workContext;
+    public SupplierManagementWidgetViewComponent(ISupplierServices supplierServices, IWorkContext workContext)
+    {
+        _supplierService = supplierServices;
+        _workContext = workContext;
+    }
 
-//    //public IViewComponentResult Invoke(int productId)
-//    //{
-//    //    throw new NotImplementedException();
-//    //}
-//    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
-//    {
-        
+    //public IViewComponentResult Invoke(int productId)
+    //{
+    //    throw new NotImplementedException();
+    //}
+    public IViewComponentResult Invoke()
+    {
+        // Fetch the suppliers asynchronously
+        //var suppliers = await _supplierService.SearchSupplierAsync();
 
-//        var model = _supplierService.GetAllSupplierAsync().Result;
-//        if (model == null)
-//        {
-//            return Content("");
-//        }
-//        return View(model);
+        //// Map the suppliers to the model
+        //var model = new ProductSupplierMappingModel
+        //{
+        //    ProductId = productId,
+        //    AvailableSuppliers = suppliers.Select(s => new SelectListItem
+        //    {
+        //        Text = s.SupplierName,
+        //        Value = s.Id.ToString()
+        //    }).ToList(),
+        //    SelectedSupplierId = _supplierService.GetSupplierIdForProduct(productId)
+        //};
 
-//        //return View("~/Plugins/GadgetTheme.SupplierManagement/Views/ManufacturersSlider.cshtml");
-//    }
+        //if (model == null)
+        //{
+        //    return Content("");
+        //}
 
-//}
+        return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Components/Default.cshtml");
+    }
+
+}
 
 
 

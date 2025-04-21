@@ -19,6 +19,7 @@ using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
 using Nop.Web.Areas.Admin.Controllers;
+using Nop.Core.Domain.Vendors;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
 {
@@ -32,13 +33,15 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly ILocalizationService _localizationService;
         private readonly INotificationService _notificationService;
+        private readonly ILocalizedEntityService _localizedEntityService;
 
         public SupplierController(
             ISupplierServices supplierService, 
             ISupplierModelFactory supplierModelFactory, 
             IWorkContext workContext,
             ILocalizationService localizationService,
-            INotificationService notificationService
+            INotificationService notificationService,
+            ILocalizedEntityService localizedEntityService
             )
         {
             _supplierService = supplierService;
@@ -46,6 +49,27 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
             _workContext = workContext;
             _localizationService = localizationService;
             _notificationService = notificationService;
+            _localizedEntityService = localizedEntityService;
+        }
+        protected virtual async Task UpdateLocalesAsync(Supplier supplier, SupplierModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.SaveLocalizedValueAsync(supplier,
+                    x => x.SupplierName,
+                    localized.Name,
+                    localized.LanguageId);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(supplier,
+                    x => x.SupplierAddress,
+                    localized.Address,
+                    localized.LanguageId);
+
+
+                //search engine name
+                //var seName = await _urlRecordService.ValidateSeNameAsync(vendor, localized.SeName, localized.Name, false);
+                //await _urlRecordService.SaveSlugAsync(vendor, seName, localized.LanguageId);
+            }
         }
 
 
@@ -96,6 +120,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
                 };
 
                 await _supplierService.InsertSupplierAsync(supplier);
+                await UpdateLocalesAsync(supplier, model);
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Suppliers.Added"));
                 //update picture seo file name
                 //await UpdatePictureSeoNamesAsync(employee);
@@ -152,7 +177,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
 
                 return continueEditing ? RedirectToAction("Edit", new { id = supplier.Id }) : RedirectToAction("List");
             }
-
+            await UpdateLocalesAsync(supplier, model);
             //prepare model
             model = await _supplierModelFactory.PrepareSupplierModelAsync(model, supplier, true);
 

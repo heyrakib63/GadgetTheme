@@ -7,16 +7,18 @@ using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Menu;
 using Nop.Core;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Components;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement;
 
 /// <summary>
 /// Supplier Management Plugin
 /// </summary>
-public class SupplierManagementPlugin : BasePlugin
+public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
 {
     private readonly IWebHelper _webHelper;
     protected readonly ILocalizationService _localizationService;
+
 
     public SupplierManagementPlugin(ILocalizationService localizationService, IWebHelper webHelper)
     {
@@ -24,6 +26,32 @@ public class SupplierManagementPlugin : BasePlugin
         _webHelper = webHelper;
     }
 
+
+    // Invoking the viewcomponents.
+    public bool HideInWidgetList => true;
+    //public Task<IList<string>> GetWidgetZonesAsync()
+    //{
+    //    return Task.FromResult<IList<string>>(new List<string>
+    //    {
+    //        "categorydetails_after_breadcrumb", // or a custom widget zone
+    //    });
+    //}
+    public Task<IList<string>> GetWidgetZonesAsync()
+    {
+        return Task.FromResult<IList<string>>(new List<string> { "home_page_before_news" });
+    }
+
+    public Type GetWidgetViewComponent(string widgetZone)
+    {
+        return typeof(SupplierManagementWidgetViewComponent);
+    }
+
+
+
+
+
+
+    // Install and Uninstall Logics
 
     public override async Task InstallAsync()
     {
