@@ -28,7 +28,7 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
 
 
     // Invoking the viewcomponents.
-    public bool HideInWidgetList => true;
+    public bool HideInWidgetList => false;
     //public Task<IList<string>> GetWidgetZonesAsync()
     //{
     //    return Task.FromResult<IList<string>>(new List<string>
@@ -46,6 +46,10 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
         return typeof(SupplierManagementWidgetViewComponent);
     }
 
+    public Task<IList<string>> GetConfigurationPageUrlAsync()
+    {
+        return Task.FromResult<IList<string>>(new List<string>());
+    }
 
 
 
