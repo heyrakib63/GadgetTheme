@@ -12,7 +12,7 @@ using Nop.Web.Framework.Mvc.Filters;
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers;
 [Area("admin")]
 [AuthorizeAdmin]
-[Route("Admin/ProductSupplier/Map")]
+[Route("Admin/ProductSupplier")]
 public class ProductSupplierController : BasePluginController
 {
     private readonly IProductSupplierMappingService _mappingService;

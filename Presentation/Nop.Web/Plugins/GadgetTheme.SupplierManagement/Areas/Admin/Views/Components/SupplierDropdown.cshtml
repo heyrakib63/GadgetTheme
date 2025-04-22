@@ -30,3 +30,34 @@
 	</div>
 
 </nop-card>
+
+
+<script>
+		$(document).ready(function () {
+		$('#btnSaveSupplier').on('click', function () {
+			var supplierId = $('#SupplierDropdown').val();
+			var productId = @Model.ProductId;
+
+			if (!supplierId) {
+				alert("Please select a supplier first.");
+				return;
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "@Url.Action("MapSupplier", "ProductSupplier", new { area = "Admin" })",
+				data: { productId: productId, supplierId: supplierId },
+				success: function (response) {
+					if (response.success) {
+						alert("Supplier successfully saved!");
+					} else {
+						alert("Saving failed.");
+					}
+				},
+				error: function () {
+					alert("An error occurred while saving.");
+				}
+			});
+		});
+	});
+</script>
