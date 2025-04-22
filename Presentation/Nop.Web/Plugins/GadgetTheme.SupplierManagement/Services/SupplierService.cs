@@ -4,6 +4,7 @@ using Nop.Data;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Services.Html;
+using Microsoft.CodeAnalysis.CSharp;
 
 public class SupplierService : ISupplierServices
 {
@@ -14,6 +15,13 @@ public class SupplierService : ISupplierServices
     {
         _supplierRepository = supplierRepository;
         _htmlFormatter = htmlFormatter;
+    }
+
+    public virtual async Task<IList<Supplier>> GetAllSupplierAsync()
+    {
+        var suppliers = await _supplierRepository.GetAllAsync(query =>
+            query.OrderBy(s => s.SupplierName)); // Optional: sort by name
+        return suppliers;
     }
 
     public virtual async Task<IPagedList<Supplier>> SearchSupplierAsync(string name = "", string email = "", int pageIndex = 0, int pageSize = int.MaxValue)

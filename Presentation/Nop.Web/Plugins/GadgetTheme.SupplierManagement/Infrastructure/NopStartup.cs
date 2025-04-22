@@ -32,8 +32,9 @@ public class NopStartup : INopStartup
             options.ViewLocationExpanders.Add(new ViewLocationExpander());
         });
         services.AddScoped<ISupplierServices, SupplierService>();
+        services.AddScoped<IProductSupplierMappingService, ProductSupplierMappingService>();
         services.AddScoped<ISupplierModelFactory, SupplierModelFactory>();
-        services.AddScoped<IWidgetPlugin, SupplierManagementPlugin>();
+        //services.AddScoped<IWidgetPlugin, SupplierManagementPlugin>();
     }
     /// <summary>
     /// Configure the using of added middleware

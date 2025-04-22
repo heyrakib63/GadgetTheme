@@ -1,0 +1,32 @@
+﻿@model ProductSupplierViewModel
+@addTagHelper *, Nop.Web
+
+
+@{
+	const string hideSupplierBlockAttributeName = "ProductPage.HideSupplierBlock";
+	var customer = await workContext.GetCurrentCustomerAsync();
+	var hideSupplierBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideSupplierBlockAttributeName);
+}
+
+<div asp-validation-summary="All"></div>
+@* <input asp-for="Model.ProductId" type="hidden" /> *@
+
+<nop-card asp-name="supplier-info" asp-icon="fa-solid fa-truck-field" asp-title="Link a Supplier" asp-hide-block-attribute-name="@hideSupplierBlockAttributeName" asp-hide="@hideSupplierBlock" asp-advanced="false">
+
+	<div class="card-body">
+
+		@if (Model.ProductId > 0)
+		{
+			@await Html.PartialAsync("_CreateOrUpdate.ProductSupplier", Model)
+		}
+		else
+		{
+			<div class="card card-default">
+				<div class="card-body">
+					@T("Admin.Catalog.Products.ProductSupplier.SaveBeforeEdit")
+				</div>
+			</div>
+		}
+	</div>
+
+</nop-card>

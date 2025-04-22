@@ -18,4 +18,5 @@ public partial interface ISupplierServices
 
     Task<Supplier> GetSupplierByIdAsync(int supplierId);
     Task<IPagedList<Supplier>> SearchSupplierAsync(string name = "", string email="",int pageIndex = -1, int pageSize = int.MaxValue);
+    Task<IList<Supplier>> GetAllSupplierAsync();
 }

@@ -8,6 +8,7 @@ using Nop.Services.Customers;
 using Nop.Services.Orders;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Components;
+using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Components;
 
@@ -28,7 +29,7 @@ public class SupplierManagementWidgetViewComponent : NopViewComponent
     //{
     //    throw new NotImplementedException();
     //}
-    public IViewComponentResult Invoke()
+    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
     {
         // Fetch the suppliers asynchronously
         //var suppliers = await _supplierService.SearchSupplierAsync();
@@ -49,8 +50,9 @@ public class SupplierManagementWidgetViewComponent : NopViewComponent
         //{
         //    return Content("");
         //}
+        var model = await _supplierService.SearchSupplierAsync();
 
-        return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Components/Default.cshtml");
+        return View("Default", model);
     }
 
 }

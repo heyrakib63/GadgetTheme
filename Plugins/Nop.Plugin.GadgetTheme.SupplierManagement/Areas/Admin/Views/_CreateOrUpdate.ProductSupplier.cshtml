@@ -1,0 +1,42 @@
+﻿
+@model ProductSupplierViewModel
+
+<div class="form-group row">
+	<div class="col-md-3">
+		<label class="control-label">Supplier</label>
+	</div>
+	<div class="col-md-9">
+		<select id="SupplierDropdown" class="form-control">
+			<option value="">-- Select Supplier --</option>
+			@foreach (var supplier in Model.Suppliers)
+			{
+				<option value="@supplier.Value">@supplier.Text</option>
+			}
+		</select>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function () {
+		$('#SupplierDropdown').change(function () {
+			var supplierId = $(this).val();
+			var productId = @Model.ProductId;
+
+			if (!productId) return;
+
+			$.ajax({
+				type: "POST",
+				url: "/Admin/Controllers/Map",
+				data: { productId: productId, supplierId: supplierId },
+				success: function (response) {
+					if (response.success) {
+						alert("Supplier saved!");
+					} else {
+						alert("Failed to save supplier.");
+					}
+				}
+			});
+		});
+	});
+</script>
+

@@ -8,6 +8,7 @@ using Nop.Web.Framework.Menu;
 using Nop.Core;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Components;
+using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement;
 
@@ -29,26 +30,19 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
 
     // Invoking the viewcomponents.
     public bool HideInWidgetList => false;
-    //public Task<IList<string>> GetWidgetZonesAsync()
-    //{
-    //    return Task.FromResult<IList<string>>(new List<string>
-    //    {
-    //        "categorydetails_after_breadcrumb", // or a custom widget zone
-    //    });
-    //}
     public Task<IList<string>> GetWidgetZonesAsync()
     {
-        return Task.FromResult<IList<string>>(new List<string> { "home_page_before_news" });
+        return Task.FromResult<IList<string>>(new List<string> { AdminWidgetZones.ProductDetailsBlock});
     }
 
+    /// <summary>
+    /// Gets a type of a view component for displaying widget
+    /// </summary>
+    /// <param name="widgetZone">Name of the widget zone</param>
+    /// <returns>View component type</returns>
     public Type GetWidgetViewComponent(string widgetZone)
     {
-        return typeof(SupplierManagementWidgetViewComponent);
-    }
-
-    public Task<IList<string>> GetConfigurationPageUrlAsync()
-    {
-        return Task.FromResult<IList<string>>(new List<string>());
+        return typeof(SupplierDropdownViewComponent);
     }
 
 
@@ -92,6 +86,7 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
             ["Admin.Suppliers.Updated"] = "Supplier Updated Successfully",
             ["Admin.Suppliers.Deleted"] = "Deleted succusfully",
             ["Admin.Suppliers.Added"] = "Created Successfully",
+            ["Admin.Catalog.Products.ProductSupplier.SaveBeforeEdit"] = "You need to save the product before you can link a supplier for this product page.",
         });
 
         await base.InstallAsync();
@@ -142,7 +137,8 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
             ["Admin.Suppliers.Updated"] = "Supplier Updated Successfully",
             ["Admin.Suppliers.Deleted"] = "Deleted succusfully",
             ["Admin.Suppliers.Added"] = "Created Successfully",
-            
+            ["Admin.Catalog.Products.ProductSupplier.SaveBeforeEdit"] = "You need to save the product before you can link a supplier for this product page.",
+
         });
 
         await base.UpdateAsync(oldVersion, newVersion);
@@ -170,13 +166,13 @@ public class EventConsumer : IConsumer<AdminMenuCreatedEvent>
         if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PLUGINS))
             return;
 
-        eventMessage.RootMenuItem.InsertBefore("Local plugins",
+        eventMessage.RootMenuItem.InsertAfter("Configuration",
             new AdminMenuItem
             {
                 SystemName = "GadgetTheme.SupplierManagement",
                 Title = "Suppliers",
                 Url = eventMessage.GetMenuItemUrl("Supplier", "List"),
-                IconClass = "fa fa-dot-circle",
+                IconClass = "fa-solid fa-truck-field",
                 Visible = true,
             });
     }
