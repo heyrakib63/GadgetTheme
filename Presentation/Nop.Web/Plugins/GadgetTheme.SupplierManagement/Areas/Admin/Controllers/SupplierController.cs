@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
+using Nop.Core.Caching;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
@@ -8,6 +9,8 @@ using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
+
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
 {
@@ -21,14 +24,16 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly INotificationService _notificationService;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly IStaticCacheManager _staticCacheManager;
 
         public SupplierController(
-            ISupplierServices supplierService, 
-            ISupplierModelFactory supplierModelFactory, 
+            ISupplierServices supplierService,
+            ISupplierModelFactory supplierModelFactory,
             IWorkContext workContext,
             ILocalizationService localizationService,
             INotificationService notificationService,
-            ILocalizedEntityService localizedEntityService
+            ILocalizedEntityService localizedEntityService,
+            IStaticCacheManager staticCacheManager
             )
         {
             _supplierService = supplierService;
@@ -37,7 +42,9 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
             _localizationService = localizationService;
             _notificationService = notificationService;
             _localizedEntityService = localizedEntityService;
+            _staticCacheManager = staticCacheManager;
         }
+        //For supporting malti language.
         protected virtual async Task UpdateLocalesAsync(Supplier supplier, SupplierModel model)
         {
             foreach (var localized in model.Locales)
@@ -87,6 +94,8 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
 
                 await _supplierService.InsertSupplierAsync(supplier);
                 await UpdateLocalesAsync(supplier, model);
+                await _staticCacheManager.RemoveByPrefixAsync(NopModelCacheDefaults.AdminSupplierAllPrefixCacheKey);
+                await _staticCacheManager.RemoveByPrefixAsync(NopModelCacheDefaults.PublicSupplierAllPrefixCacheKey);
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Suppliers.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = supplier.Id }) : RedirectToAction("List");
             }
@@ -124,6 +133,9 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
                 supplier.SupplierAddress = model.Address;
                 await _supplierService.UpdateSupplierAsync(supplier);
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Suppliers.Updated"));
+
+                await _staticCacheManager.RemoveByPrefixAsync(NopModelCacheDefaults.AdminSupplierAllPrefixCacheKey);
+                await _staticCacheManager.RemoveByPrefixAsync(NopModelCacheDefaults.PublicSupplierAllPrefixCacheKey);
                 return continueEditing ? RedirectToAction("Edit", new { id = supplier.Id }) : RedirectToAction("List");
             }
             await UpdateLocalesAsync(supplier, model);
@@ -140,6 +152,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
                 return RedirectToAction("List");
             await _supplierService.DeleteSupplierAsync(supplier);
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Suppliers.Deleted"));
+            await _staticCacheManager.RemoveByPrefixAsync(NopModelCacheDefaults.AdminSupplierAllPrefixCacheKey);
             return RedirectToAction("List");
         }
     }

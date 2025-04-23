@@ -1,10 +1,14 @@
-﻿using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
+﻿using LinqToDB.Common.Internal.Cache;
+using Microsoft.Extensions.Caching.Memory;
+using Nop.Core.Caching;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Services.Localization;
 using Nop.Web.Framework.Factories;
 using Nop.Web.Framework.Models.Extensions;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Factories;
 public class SupplierModelFactory : ISupplierModelFactory
@@ -12,11 +16,18 @@ public class SupplierModelFactory : ISupplierModelFactory
     private readonly ILocalizationService _localizationService;
     private readonly ISupplierServices _supplierService;
     private readonly ILocalizedModelFactory _localizedModelFactory;
-    public SupplierModelFactory(ILocalizationService localizationService, ISupplierServices supplierService, ILocalizedModelFactory localizedModelFactory)
+    private readonly IStaticCacheManager _staticCacheManager;
+    public SupplierModelFactory(
+        ILocalizationService localizationService,
+        ISupplierServices supplierService,
+        ILocalizedModelFactory localizedModelFactory,
+        IStaticCacheManager staticCacheManager
+        )
     {
         _localizationService = localizationService;
         _supplierService = supplierService;
         _localizedModelFactory = localizedModelFactory;
+        _staticCacheManager = staticCacheManager;
     }
     // Return lists of Suppliers aka grid
     public async Task<SupplierListModel> PrepareSupplierListModelAsync(SupplierSearchModel searchModel)
@@ -28,15 +39,20 @@ public class SupplierModelFactory : ISupplierModelFactory
                        pageIndex: searchModel.Page - 1,
                        pageSize: searchModel.PageSize);
         //prepare grid model
-        var count = suppliers.Count();
-        var model = await new SupplierListModel().PrepareToGridAsync(searchModel, suppliers, () =>
+        var count = suppliers.Count;
+        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.AdminSupplierAllModelKey,searchModel.Name, searchModel.Email,0);
+        var output = await _staticCacheManager.GetAsync(cacheKey, async () =>
         {
-            return suppliers.SelectAwait(async supplier =>
+            var model = await new SupplierListModel().PrepareToGridAsync(searchModel, suppliers, () =>
             {
-                return await PrepareSupplierModelAsync(null, supplier, true);
+                return suppliers.SelectAwait(async supplier =>
+                {
+                    return await PrepareSupplierModelAsync(null, supplier, true);
+                });
             });
+            return model;
         });
-        return model;
+        return output;
     }
     // Returns the a single supplier model
     public async Task<SupplierModel> PrepareSupplierModelAsync(SupplierModel model, Supplier supplier, bool excludeProperties = false)

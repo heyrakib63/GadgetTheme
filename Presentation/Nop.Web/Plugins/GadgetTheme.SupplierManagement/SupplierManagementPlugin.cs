@@ -32,32 +32,7 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
     // Install and Uninstall Logics
     public override async Task InstallAsync()
     {
-        await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-        {
-            ["Admin.Suppliers"] = "Suppliers",
-            ["Admin.Suppliers.AddNew"] = "Add new Suppliers",
-            ["Admin.Suppliers.EditDetails"] = "Edit Supplier Details",
-            ["Admin.Suppliers.BackToList"] = "Back to Supplier List",
-            ["Admin.Suppliers.Fields.Name"] = "Name",
-            ["Admin.Suppliers.Fields.Name.Hint"] = "Enter Supplier Name.",
-            ["Admin.Suppliers.Fields.Name.Required"] = "Name is Required",
-            ["Admin.Suppliers.Fields.Email"] = "Email",
-            ["Admin.Suppliers.Fields.Email.Hint"] = "Enter Supplier Email.",
-            ["Admin.Suppliers.Fields.Email.Required"] = "Email is Required",
-            ["Admin.Suppliers.Fields.Address"] = "Address",
-            ["Admin.Suppliers.Fields.Address.Hint"] = "Enter Supplier Address.",
-            ["Admin.Suppliers.Fields.Address.Required"] = "Address is Required",
-            ["Admin.Suppliers.List.Name"] = "Name",
-            ["Admin.Suppliers.List.Email"] = "Email",
-            ["Admin.Suppliers.List.Name.Hint"] = "Search by Supplier Name",
-            ["Admin.Suppliers.List.Email.Hint"] = "Search by Employee Email",
-            ["Admin.Suppliers.Info"] = "Suppliers Info",
-            ["Admin.Suppliers.EditSupplierDetails"] = "Edit Supplier Details",
-            ["Admin.Suppliers.Updated"] = "Supplier Updated Successfully",
-            ["Admin.Suppliers.Deleted"] = "Deleted succusfully",
-            ["Admin.Suppliers.Added"] = "Created Successfully",
-            ["Admin.Catalog.Products.ProductSupplier.SaveBeforeEdit"] = "You need to save the product before you can link a supplier for this product page.",
-        });
+        await _localizationService.AddOrUpdateLocaleResourceAsync(GetLocaleResources());
         await base.InstallAsync();
     }
 
@@ -68,7 +43,14 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
 
     public override async Task UpdateAsync(string oldVersion, string newVersion)
     {
-        await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+        await _localizationService.AddOrUpdateLocaleResourceAsync(GetLocaleResources());
+
+        await base.UpdateAsync(oldVersion, newVersion);
+    }
+
+    private Dictionary<string, string> GetLocaleResources()
+    {
+        return new Dictionary<string, string>
         {
             ["Admin.Suppliers"] = "Suppliers",
             ["Admin.Suppliers.AddNew"] = "Add new Suppliers",
@@ -93,9 +75,7 @@ public class SupplierManagementPlugin : BasePlugin, IWidgetPlugin
             ["Admin.Suppliers.Deleted"] = "Deleted succusfully",
             ["Admin.Suppliers.Added"] = "Created Successfully",
             ["Admin.Catalog.Products.ProductSupplier.SaveBeforeEdit"] = "You need to save the product before you can link a supplier for this product page.",
-        });
-
-        await base.UpdateAsync(oldVersion, newVersion);
+        };
     }
 
 }
