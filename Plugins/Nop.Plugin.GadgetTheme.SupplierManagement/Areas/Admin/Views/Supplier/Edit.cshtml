@@ -1,13 +1,9 @@
 ﻿@model SupplierModel
-
 @{
-	//page title
 	ViewBag.PageTitle = T("Admin.Suppliers.EditSupplierDetails").Text;
-	//active menu item (system name)
 	NopHtml.SetActiveMenuItemSystemName("Suppliers");
 	Layout = "_AdminLayout";
 }
-
 <form asp-controller="Supplier" asp-action="Edit" method="post">
 	<div class="content-header clearfix">
 		<h1 class="float-left">
@@ -30,7 +26,6 @@
 				<i class="far fa-trash-can"></i>
 				@T("Admin.Common.Delete")
 			</span>
-			@* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.VendorDetailsButtons, additionalData = Model }) *@
 		</div>
 	</div>
 	@await Html.PartialAsync("_CreateOrUpdate", Model)

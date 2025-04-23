@@ -1,5 +1,4 @@
 ﻿using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
-
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 
 public interface IProductSupplierMappingService

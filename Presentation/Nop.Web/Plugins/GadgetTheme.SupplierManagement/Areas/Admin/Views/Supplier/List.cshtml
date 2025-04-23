@@ -1,19 +1,14 @@
 ﻿
 @model SupplierSearchModel
-
 @{
     ViewBag.Title = "Supplier List";
     Layout = "_AdminLayout";
 	NopHtml.SetActiveMenuItemSystemName("Suppliers");
 }
-
 @{ 
  	const string hideSearchBlockAttributeName = "SupplierPage.HideSearchBlock";
  	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
 }
-
-
-
 <div class="content-header clearfix">
 	<h1 class="float-left">
 		Suppliers
@@ -23,10 +18,8 @@
 			<i class="fas fa-square-plus"></i>
 			AddNew
 		</a>
-		@* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.SupplierListButtons, additionalData = Model }) *@
 	</div>
 </div>
-
 <section class="content">
 	<div class="container-fluid">
 		<div class="form-horizontal">
@@ -38,7 +31,6 @@
 							<div class="icon-search"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></div>
 							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
 						</div>
-
 						<div class="search-body @(hideSearchBlock ? "closed" : "")">
 							<div class="row">
 								<div class="col-md-6">
@@ -73,14 +65,8 @@
 						</div>
 					</div>
 				</div>
-				
-				
-				
-				
 				<div class="card card-default">
 					<div class="card-body">
-						@* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.VendorManagement", Docs.VendorManagement + Utm.OnAdmin)" /> *@
-
 						@await Html.PartialAsync("Table", new DataTablesModel
 							{
 								Name = "suppliers-grid",
@@ -88,7 +74,6 @@
 								UrlRead = new DataUrl("List", "Supplier", null),
 								Length = Model.PageSize,
 								LengthMenu = Model.AvailablePageSizes,
-								// Paging = false,
 								Filters = new List<FilterParameter>
 									{
 									new FilterParameter(nameof(Model.Name)),
@@ -120,9 +105,8 @@
 									ClassName =  NopColumnClassDefaults.Button,
 									Render = new RenderButtonRemove(new DataUrl("Delete").Url)
 									}
-									}
+								}
 							})
-
 					</div>
 				</div>
 			</div>
