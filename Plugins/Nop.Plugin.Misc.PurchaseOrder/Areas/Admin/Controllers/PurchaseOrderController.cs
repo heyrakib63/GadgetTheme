@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using Nop.Core;
 using Nop.Core.Caching;
+using Nop.Data;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
@@ -22,6 +26,9 @@ public class PurchaseOrderController : BasePluginController
     private readonly INotificationService _notificationService;
     private readonly ILocalizedEntityService _localizedEntityService;
     private readonly IStaticCacheManager _staticCacheManager;
+    private readonly ISupplierServices _supplierServices;
+    private readonly IRepository<PurchaseOrders> _purchaseOrderRepository;
+    private readonly IRepository<PurchaseOrderItems> _purchaseOrderItemRepository;
 
     public PurchaseOrderController(
         IPurchaseOrdersService purchaseOrdersService,
@@ -30,7 +37,10 @@ public class PurchaseOrderController : BasePluginController
         ILocalizationService localizationService,
         INotificationService notificationService,
         ILocalizedEntityService localizedEntityService,
-        IStaticCacheManager staticCacheManager
+        IStaticCacheManager staticCacheManager,
+        ISupplierServices supplierServices,
+        IRepository<PurchaseOrders> purchaseOrderRepository,
+        IRepository<PurchaseOrderItems> purchaseOrderItemRepository
         )
     {
         _purchaseOrdersService = purchaseOrdersService;
@@ -40,6 +50,9 @@ public class PurchaseOrderController : BasePluginController
         _notificationService = notificationService;
         _localizedEntityService = localizedEntityService;
         _staticCacheManager = staticCacheManager;
+        _supplierServices = supplierServices;
+        _purchaseOrderRepository = purchaseOrderRepository;
+        _purchaseOrderItemRepository = purchaseOrderItemRepository;
     }
     // Logics for List view
     public async Task<IActionResult> List()
@@ -55,29 +68,85 @@ public class PurchaseOrderController : BasePluginController
         return Json(model);
     }
     // To generate the create view.
+    [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var model = await _purchaseOrdersModelFactory.PreparePurchaseOrdersModelAsync(new PurchaseOrdersModel(), null);
+        var model = new CreatePurchaseOrderModel();
+
+        // Load supplier dropdown
+        var suppliers = await _supplierServices.GetAllSupplierAsync();
+        model.AvailableSuppliers = suppliers
+            .Select(s => new SelectListItem
+            {
+                Text = s.SupplierName,
+                Value = s.Id.ToString()
+            }).ToList();
+
+        model.OrderDate = DateTime.UtcNow;
+
         return View(model);
     }
+
     // The post method for Insert and logic where should it go after Inserting the data.
     [HttpPost]
-    public async Task<IActionResult> Create(PurchaseOrdersModel model)
+    public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
     {
-        if (ModelState.IsValid)
-        {
-            var purchaseOrder = new PurchaseOrders
-            {
-                SupplierId = model.SupplierId,
-                CreatedOnUtc = model.CreatedOnUtc,
-                TotalCost = model.TotalCost,
-            };
+        // Step 1: Validate form
+        if (!ModelState.IsValid)
+            return View(model);
 
-            await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
-            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.PurchaseOrders.Added"));
-            return RedirectToAction("List");
+        // Step 2: Deserialize product items
+        if (string.IsNullOrEmpty(Request.Form["SerializedItems"]))
+        {
+            ModelState.AddModelError(string.Empty, "Please add at least one product.");
+            return View(model);
         }
-        model = await _purchaseOrdersModelFactory.PreparePurchaseOrdersModelAsync(model, null);
-        return View(model);
+
+        var serializedItems = Request.Form["SerializedItems"];
+        var items = JsonConvert.DeserializeObject<List<PurchaseOrderItemModel>>(serializedItems);
+
+        if (items == null || !items.Any())
+        {
+            ModelState.AddModelError(string.Empty, "Product list is empty.");
+            return View(model);
+        }
+
+        // Step 3: Calculate total cost
+        var totalCost = items.Sum(i => i.UnitPrice * i.Quantity);
+
+        // Step 4: Create and save PurchaseOrder entity
+        var purchaseOrder = new PurchaseOrders
+        {
+            SupplierId = model.SupplierId,
+            TotalCost = totalCost,
+            CreatedOnUtc = DateTime.UtcNow
+        };
+        await _purchaseOrderRepository.InsertAsync(purchaseOrder);
+
+        // Step 5: Insert PurchaseOrderItems
+        foreach (var item in items)
+        {
+            var orderItem = new PurchaseOrderItems
+            {
+                PurchaseOrderId = purchaseOrder.Id,
+                ProductId = item.ProductId,
+                UnitPrice = item.UnitPrice,
+                Quantity = item.Quantity,
+                TotalCost = item.UnitPrice * item.Quantity
+            };
+            await _purchaseOrderItemRepository.InsertAsync(orderItem);
+        }
+
+        // Step 6: Redirect back to list
+        return RedirectToAction("List");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProductsBySupplier(int supplierId)
+    {
+        var products = await _supplierServices.GetProductsBySupplierIdAsync(supplierId);
+
+        var result = products.Select(p => new { id = p.Id, name = p.Name }).ToList();
+        return Json(result);
     }
 }

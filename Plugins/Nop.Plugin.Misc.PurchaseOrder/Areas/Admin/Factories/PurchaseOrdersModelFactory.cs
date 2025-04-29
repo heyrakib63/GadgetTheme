@@ -4,6 +4,7 @@ using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
+using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Web.Framework.Factories;
 using Nop.Web.Framework.Models.Extensions;
@@ -15,18 +16,21 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
     private readonly IPurchaseOrdersService _purchaseOrdersService;
     private readonly ILocalizedModelFactory _localizedModelFactory;
     private readonly ISupplierServices _supplierServices;
+    private readonly IPriceFormatter _priceFormatter;
     //private readonly IStaticCacheManager _staticCacheManager;
     public PurchaseOrdersModelFactory(
         ILocalizationService localizationService,
         IPurchaseOrdersService purchaseOrdersService,
         ILocalizedModelFactory localizedModelFactory,
-        ISupplierServices supplierServices
+        ISupplierServices supplierServices,
+        IPriceFormatter priceFormatter
         )
     {
         _localizationService = localizationService;
         _purchaseOrdersService = purchaseOrdersService;
         _localizedModelFactory = localizedModelFactory;
         _supplierServices = supplierServices;
+        _priceFormatter = priceFormatter;
         //_staticCacheManager = staticCacheManager;
     }
     // Return lists of Suppliers aka grid
@@ -65,13 +69,17 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         {
             if (model == null)
             {
+                var supplier = await _supplierServices.GetSupplierByIdAsync(purchaseOrder.SupplierId);
                 //fill in model values from the entity
                 model = new PurchaseOrdersModel()
                 {
                     Id = purchaseOrder.Id,
                     SupplierId = purchaseOrder.SupplierId,
+                    SupplierName = supplier?.SupplierName,
+                    SupplierEmail = supplier?.SupplierEmail,
                     CreatedOnUtc = purchaseOrder.CreatedOnUtc,
                     TotalCost = purchaseOrder.TotalCost,
+                    TotalCostFormatted = await _priceFormatter.FormatPriceAsync(purchaseOrder.TotalCost)
                 };
             }
         }

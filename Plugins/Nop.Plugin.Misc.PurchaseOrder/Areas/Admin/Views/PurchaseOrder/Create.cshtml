@@ -1,0 +1,219 @@
+﻿@model CreatePurchaseOrderModel
+
+@{
+	Layout = "_AdminLayout";
+	NopHtml.SetActiveMenuItemSystemName("PurchaseOrders");
+	ViewBag.PageTitle = "Add New Purchase Order";
+}
+
+<form asp-action="Create" method="post">
+	<input type="hidden" name="SerializedItems" id="SerializedItems" />
+	<div class="content-header clearfix">
+		<h1 class="float-left">
+			Add New Purchase Order
+		</h1>
+		<div class="float-right">
+			<button type="submit" class="btn btn-primary">
+				<i class="far fa-save"></i>
+				Save
+			</button>
+		</div>
+	</div>
+
+	<section class="content">
+		<div class="container-fluid">
+			<div class="form-horizontal">
+				<div class="cards-group">
+					<div class="card card-default">
+						<div class="card-body">
+							<div class="form-group row">
+								<div class="col-md-3">
+									<nop-label asp-for="SupplierId" />
+								</div>
+								<div class="col-md-5">
+									<nop-select asp-for="SupplierId" asp-items="@Model.AvailableSuppliers" />
+								</div>
+								<div class="col-md-4">
+									<button type="button" class="btn btn-success" id="confirm-supplier">
+										<i class="fas fa-check"></i> Confirm Supplier
+									</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Product Selection Modal -->
+	<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="productModalLabel">Add Products</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+
+				<div class="modal-body">
+					<table class="table table-bordered" id="product-items-table">
+						<thead>
+							<tr>
+								<th style="width: 30%;">Product</th>
+								<th style="width: 15%;">Unit Price</th>
+								<th style="width: 15%;">Quantity</th>
+								<th style="width: 20%;">Total</th>
+								<th style="width: 10%;"></th>
+							</tr>
+						</thead>
+						<tbody id="product-items-body">
+							<!-- Rows will be added dynamically -->
+						</tbody>
+					</table>
+					<button type="button" class="btn btn-secondary" id="add-product-row">
+						<i class="fas fa-plus-circle"></i> Add Product
+					</button>
+				</div>
+
+				<div class="modal-footer">
+					<div class="mr-auto font-weight-bold">
+						Total Cost: <span id="total-cost-text">$0.00</span>
+					</div>
+					<button type="button" class="btn btn-primary" id="save-products-btn">
+						<i class="fas fa-check"></i> Done
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</form>
+
+
+
+	<script>
+		let productItems = [];
+
+		// Add new product row
+		$("#add-product-row").on("click", function () {
+			const index = productItems.length;
+			const row = `
+				<tr data-index="${index}">
+					<td>
+						<select class="form-control product-dropdown"></select>
+					</td>
+					<td>
+						<input type="number" class="form-control unit-price" step="0.01" min="0" />
+					</td>
+					<td>
+						<input type="number" class="form-control quantity" step="1" min="1" />
+					</td>
+					<td>
+						<span class="total-cost">$0.00</span>
+					</td>
+					<td>
+						<button type="button" class="btn btn-danger btn-sm remove-row">
+							<i class="fas fa-trash-alt"></i>
+						</button>
+					</td>
+				</tr>
+			`;
+			$("#product-items-body").append(row);
+
+			// After adding, load supplier products into the dropdown
+			loadSupplierProducts(index);
+		});
+
+		// Remove row
+		$(document).on("click", ".remove-row", function () {
+			$(this).closest("tr").remove();
+			updateTotalCost();
+		});
+
+		// Update total on input change
+		$(document).on("input", ".unit-price, .quantity", function () {
+			const row = $(this).closest("tr");
+			const price = parseFloat(row.find(".unit-price").val()) || 0;
+			const qty = parseInt(row.find(".quantity").val()) || 0;
+			const total = price * qty;
+
+			row.find(".total-cost").text(`$${total.toFixed(2)}`);
+			updateTotalCost();
+		});
+
+		// Confirm supplier
+		$("#confirm-supplier").on("click", function () {
+			const supplierId = $("#SupplierId").val();
+			if (!supplierId || supplierId === "0") {
+				alert("Please select a valid supplier.");
+				return;
+			}
+
+			$("#SupplierId").prop("disabled", true);
+			$("#productModal").modal("show");
+		});
+
+		// Save products and close modal
+		$("#save-products-btn").on("click", function () {
+			productItems = [];
+
+			$("#product-items-body tr").each(function () {
+				const row = $(this);
+				const productId = row.find(".product-dropdown").val();
+				const productName = row.find(".product-dropdown option:selected").text();
+				const unitPrice = parseFloat(row.find(".unit-price").val()) || 0;
+				const quantity = parseInt(row.find(".quantity").val()) || 0;
+
+				if (productId && quantity > 0) {
+					productItems.push({
+						ProductId: parseInt(productId),
+						ProductName: productName,
+						UnitPrice: unitPrice,
+						Quantity: quantity
+					});
+				}
+			});
+
+			// Save to hidden input
+			$("#SerializedItems").val(JSON.stringify(productItems));
+			updateTotalCost();
+			$("#productModal").modal("hide");
+		});
+
+		// Calculate total order cost
+		function updateTotalCost() {
+			let total = 0;
+			$("#product-items-body tr").each(function () {
+				const row = $(this);
+				const price = parseFloat(row.find(".unit-price").val()) || 0;
+				const qty = parseInt(row.find(".quantity").val()) || 0;
+				total += price * qty;
+			});
+			$("#total-cost-text").text(`$${total.toFixed(2)}`);
+		}
+
+		// Load products for the selected supplier
+		function loadSupplierProducts(index) {
+			const supplierId = $("#SupplierId").val();
+			const dropdown = $(`#product-items-body tr[data-index="${index}"] .product-dropdown`);
+
+			$.ajax({
+				url: '/Admin/PurchaseOrder/GetProductsBySupplier',
+				type: 'GET',
+				data: { supplierId: supplierId },
+				success: function (data) {
+					dropdown.empty();
+					data.forEach(p => {
+						dropdown.append(`<option value="${p.id}">${p.name}</option>`);
+					});
+				},
+				error: function () {
+					alert("Failed to load products.");
+				}
+			});
+		}
+	</script>
+
+

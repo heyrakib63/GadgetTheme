@@ -10,12 +10,15 @@ public record PurchaseOrdersModel : BaseNopEntityModel, ILocalizedModel<Purchase
     }
     [NopResourceDisplayName("Admin.PurchaseOrdder.Fields.SupplierId")]
     public int SupplierId { get; set; }
+    public string SupplierName { get; set; }
+    public string SupplierEmail { get; set; }
 
     [NopResourceDisplayName("Admin.PurchaseOrder.Fields.CreatedOnUtc")]
     public DateTime CreatedOnUtc { get; set; }
 
     [NopResourceDisplayName("Admin.PurchaseOrder.Fields.TotalCost")]
     public decimal TotalCost { get; set; }
+    public string TotalCostFormatted { get; set; }
     public IList<PurchaseOrdersLocalizedModel> Locales { get; set; }
 }
 //This class is used to localize the PurchaseOrdersModel

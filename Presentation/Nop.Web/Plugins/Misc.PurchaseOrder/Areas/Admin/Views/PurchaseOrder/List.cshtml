@@ -98,25 +98,29 @@
 								Title = "Order #",
 								Width = "40"
 								},
-								new ColumnProperty(nameof(PurchaseOrdersModel.SupplierId))
+								new ColumnProperty(nameof(PurchaseOrdersModel.SupplierName))
 								{
 								Title = "Supplier",
-								Width = "300"
+								Width = "260",
+								Render = new RenderCustom("renderSupplierWithEmail")
 								},
 								new ColumnProperty(nameof(PurchaseOrdersModel.CreatedOnUtc))
 								{
 								Title = "Created On",
-								Width = "50"
+								Width = "70",
+								Render = new RenderDate()
 								},
-								new ColumnProperty(nameof(PurchaseOrdersModel.TotalCost))
+								new ColumnProperty(nameof(PurchaseOrdersModel.TotalCostFormatted))
 								{
 								Title = "Order Total",
-								Width = "50"
+								Width = "50",
 								},
 								new ColumnProperty(nameof(PurchaseOrdersModel.Id))
 								{
 								Title = "View",
-								Width = "50"
+								Width = "50",
+								ClassName =  NopColumnClassDefaults.Button,
+								Render = new RenderButtonView(new DataUrl("View"))
 								}
 								}
 						 })
@@ -126,3 +130,15 @@
 		</div>
 	</div>
 </section>
+<script>
+	function renderSupplierWithEmail(data, type, row, meta) {
+		var name = data;
+		var email = row.SupplierEmail;
+
+		if (!name) return '';
+		if (!email) return name;
+
+		return name + '<br/><a href="mailto:' + email + '">' + email + '</a>';
+	}
+</script>
+

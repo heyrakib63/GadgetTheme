@@ -34,6 +34,9 @@
     <Compile Update="Areas\Admin\Factories\PurchaseOrdersModelFactory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Update="Areas\Admin\Models\CreatePurchaseOrderModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Areas\Admin\Models\PurchaseOrdersListModel.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -74,7 +77,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Areas\Admin\Views\PurchaseOrders\List.cshtml">
+    <None Update="Areas\Admin\Views\PurchaseOrder\Create.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Areas\Admin\Views\PurchaseOrder\List.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Areas\Admin\Views\_ViewImports.cshtml">
