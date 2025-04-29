@@ -18,29 +18,47 @@
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
     <ProjectReference Include="$(SolutionDir)\Presentation\Nop.Web\Nop.Web.csproj" />
+    <ProjectReference Include="$(SolutionDir)\Plugins\Nop.Plugin.GadgetTheme.SupplierManagement\Nop.Plugin.GadgetTheme.SupplierManagement.csproj" />
     <ClearPluginAssemblies Include="$(SolutionDir)\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\Admin\Controllers\" />
-    <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="Areas\Admin\Factories\" />
     <Folder Include="Areas\Admin\Validators\" />
-    <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Views\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Domains\PurchaseOrderItems.cs">
+    <Compile Update="Areas\Admin\Controllers\PurchaseOrderController.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Domains\PurchaseOrders.cs">
+    <Compile Update="Areas\Admin\Factories\IPurchaseOrdersModelFactory.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Factories\PurchaseOrdersModelFactory.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\PurchaseOrdersListModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\PurchaseOrdersModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\PurchaseOrdersSearchModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Domains\PurchaseOrderItems.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Domains\PurchaseOrders.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Services\IPurchaseOrdersService.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Services\PurchaseOrdersService.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Infrastructure\NopStartup.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Infrastructure\ViewLocationExpander.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Mapping\Builders\PurchaseOrderItemsBuilder.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -56,7 +74,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Update="Areas\Admin\Views\PurchaseOrders\List.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Areas\Admin\Views\_ViewImports.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

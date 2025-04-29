@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
+using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Infrastructure;
 public class NopStartup : INopStartup
@@ -13,9 +15,8 @@ public class NopStartup : INopStartup
         {
             options.ViewLocationExpanders.Add(new ViewLocationExpander());
         });
-        //services.AddScoped<ISupplierServices, SupplierService>();
-        //services.AddScoped<IProductSupplierMappingService, ProductSupplierMappingService>();
-        //services.AddScoped<ISupplierModelFactory, SupplierModelFactory>();
+        services.AddScoped<IPurchaseOrdersService, PurchaseOrdersService>();
+        services.AddScoped<IPurchaseOrdersModelFactory, PurchaseOrdersModelFactory>();
     }
     public void Configure(IApplicationBuilder application)
     {

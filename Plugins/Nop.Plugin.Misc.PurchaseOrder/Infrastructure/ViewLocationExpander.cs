@@ -17,7 +17,8 @@ public class ViewLocationExpander : IViewLocationExpander
             viewLocations = new string[]
             {
                 $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/{{0}}.cshtml",
-                $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/{{1}}/{{0}}.cshtml"
+                $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/{{1}}/{{0}}.cshtml",
+                 $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/PurchaseOrders/{{0}}.cshtml"
             }.Concat(viewLocations);
         }
         else
@@ -26,6 +27,7 @@ public class ViewLocationExpander : IViewLocationExpander
             {
                 $"/Plugins/Misc.PurchaseOrder/Views/{{0}}.cshtml",
                 $"/Plugins/Misc.PurchaseOrder/Views/{{1}}/{{0}}.cshtml"
+ 
             }.Concat(viewLocations);
         }
         return viewLocations;

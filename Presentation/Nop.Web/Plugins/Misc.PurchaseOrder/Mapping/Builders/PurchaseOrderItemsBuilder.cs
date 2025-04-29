@@ -1,6 +1,6 @@
 ﻿using FluentMigrator.Builders.Create.Table;
 using Nop.Data.Mapping.Builders;
-using Nop.Plugin.Misc.PurchaseOrder.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Mapping.Builders;
 public class PurchaseOrderItemsBuilder : NopEntityBuilder<PurchaseOrderItems>

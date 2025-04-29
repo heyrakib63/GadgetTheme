@@ -1,0 +1,12 @@
+﻿using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
+
+namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
+
+public interface IPurchaseOrdersModelFactory
+{
+    Task<PurchaseOrdersModel> PreparePurchaseOrdersModelAsync(PurchaseOrdersModel model, PurchaseOrders purchaseOrders, bool excludeProperties = false);
+    Task<PurchaseOrdersSearchModel> PreparePurchaseOrdersSearchModelAsync(PurchaseOrdersSearchModel searchModel);
+    Task<PurchaseOrdersListModel> PreparePurchaseOrdersListModelAsync(PurchaseOrdersSearchModel searchModel);
+
+}
