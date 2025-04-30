@@ -3,361 +3,110 @@
 @{
 	Layout = "_AdminLayout";
 	NopHtml.SetActiveMenuItemSystemName("PurchaseOrders");
-	ViewBag.PageTitle = "Add New Purchase Order";
 }
 
-<form asp-action="Create" method="post">
-	<input type="hidden" name="SerializedItems" id="SerializedItems" />
-	<input type="hidden" id="ConfirmedSupplierId" name="SupplierId" />
-	<div class="content-header clearfix">
-		<h1 class="float-left">
-			Add New Purchase Order
-		</h1>
-		<div class="float-right">
-			<button type="submit" class="btn btn-primary">
-				<i class="far fa-save"></i>
-				Save
-			</button>
-		</div>
+<div class="content-header clearfix">
+	<h1 class="float-left">
+		Create Purchase Order
+	</h1>
+	<div class="float-right">
+		<button type="submit" form="create-form" class="btn btn-primary">
+			<i class="fas fa-save"></i> Save Purchase Order
+		</button>
 	</div>
+</div>
 
-	<section class="content">
-		<div class="container-fluid">
-			<div class="form-horizontal">
-				<div class="cards-group">
-					<div class="card card-default">
-						<div class="card-body">
-							<div class="form-group row">
-								<div class="col-md-3">
-									<nop-label asp-for="SupplierId" />
-								</div>
-								<div class="col-md-5">
-									<nop-select asp-for="SupplierId" asp-items="@Model.AvailableSuppliers" />
-								</div>
-								<div class="col-md-4">
-									<button type="button" class="btn btn-success" id="confirm-supplier">
-										<i class="fas fa-check"></i> Confirm Supplier
-									</button>
-								</div>
+<section class="content">
+	<div class="container-fluid">
+		<form asp-action="Create" method="post" id="create-form">
+			<div class="card card-default">
+				<div class="card-body">
+					<div class="form-horizontal">
+
+						<!-- Supplier Dropdown -->
+						<div class="form-group row">
+							<div class="col-md-2">
+								<nop-label asp-for="SupplierId" Text="Select a Supplier" />
 							</div>
-
+							<div class="col-md-10">
+								<nop-select asp-for="SupplierId" asp-items="@Model.AvailableSuppliers" htmlAttributes="new { id = \" SupplierId\" }" />
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</section>
-	<!-- Product Selection Modal -->
-	<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-xl" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="productModalLabel">Add Products</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-
-				<div class="modal-body">
-					<table class="table table-hover table-bordered" id="product-items-table">
-						<thead>
-							<tr>
-								<th>Picture</th>
-								<th>Product name</th>
-								<th>Unit Price</th>
-								<th>Quantity</th>
-								<th>Total</th>
-								<th style="width: 100px;">Edit</th>
-							</tr>
-						</thead>
-						<tbody id="product-items-body">
-							<!-- Rows will be added here dynamically -->
-						</tbody>
-					</table>
-
-					<button type="button" class="btn btn-primary" id="add-product-row">
-						<i class="fas fa-plus-circle"></i> Add product
-					</button>
-
-				</div>
-
-				<div class="modal-footer">
-					<div class="mr-auto font-weight-bold">
-						Total Cost: <span id="total-cost-text">$0.00</span>
+			<!-- Product Grid Section -->
+			<div class="card card-default">
+				<div class="card-body">
+					<div class="clearfix">
+						<h5 class="float-left">Selected Products</h5>
 					</div>
-					<button type="button" class="btn btn-primary" id="save-products-btn">
-						<i class="fas fa-check"></i> Done
-					</button>
+
+					@await Html.PartialAsync("Table", new DataTablesModel
+					{
+						Name = "selectedProducts-grid",
+						UrlRead = new DataUrl("LoadSelectedProducts", "PurchaseOrder", null),
+						Length = 10,
+						Processing = false,
+						ServerSide = false, // we're reading from TempData, not paging from DB
+						ColumnCollection = new List<ColumnProperty>
+						{
+						new ColumnProperty(nameof(PurchaseOrderItemModel.ProductName))
+						{
+						Title = "Product"
+						},
+						new ColumnProperty(nameof(PurchaseOrderItemModel.UnitPrice))
+						{
+						Title = "Unit Price"
+						},
+						new ColumnProperty(nameof(PurchaseOrderItemModel.Quantity))
+						{
+						Title = "Quantity"
+						},
+						new ColumnProperty(nameof(PurchaseOrderItemModel.TotalCost))
+						{
+						Title = "Total Cost"
+						},
+						new ColumnProperty(nameof(PurchaseOrderItemModel.ProductId))
+						{
+							Title = "Actions",
+							ClassName = NopColumnClassDefaults.Button,
+							Render = new RenderButtonRemove(new DataUrl("DeleteProduct").Url)
+						}
+					}
+})
 				</div>
 			</div>
-		</div>
+
+			<button type="button" class="btn btn-primary float-left" onclick="openAddProductPopup()">
+				 Add Product
+			</button>
+		</form>
 	</div>
-	<!-- Product Editor Modal (used for Add and Edit) -->
-	<div class="modal fade" id="productEditorModal" tabindex="-1" role="dialog" aria-labelledby="productEditorModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-md" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="productEditorModalLabel">Product Details</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-
-				<div class="modal-body">
-					<input type="hidden" id="editRowIndex" value="-1" />
-
-					<div class="form-group">
-						<label for="productSelect">Product</label>
-						<select id="productSelect" class="form-control"></select>
-					</div>
-
-					<div class="form-group">
-						<label for="unitPriceInput">Unit Price</label>
-						<input type="number" class="form-control" id="unitPriceInput" step="0.01" />
-					</div>
-
-					<div class="form-group">
-						<label for="quantityInput">Quantity</label>
-						<input type="number" class="form-control" id="quantityInput" step="1" />
-					</div>
-				</div>
-
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" id="saveProductItem">
-						<i class="fas fa-check"></i> Save
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-</form>
-
-
-
-	<script>
-		let productItems = [];
-
-		// Add new product row
-			$("#add-product-row").on("click", function () {
-				openProductEditor(); // create this next
-			});
-		// Edit Product Row.
-			$(document).on("click", ".edit-product", function () {
-				const index = $(this).data("index");
-				const item = productItems[index];
-				openProductEditor(item, index);
-			});
-
-
-		// Remove row
-		$(document).on("click", ".remove-row", function () {
-			$(this).closest("tr").remove();
-			updateTotalCost();
-		});
-
-		// Update total on input change
-		$(document).on("input", ".unit-price, .quantity", function () {
-			const row = $(this).closest("tr");
-			const price = parseFloat(row.find(".unit-price").val()) || 0;
-			const qty = parseInt(row.find(".quantity").val()) || 0;
-			const total = price * qty;
-
-			row.find(".total-cost").text(`$${total.toFixed(2)}`);
-			updateTotalCost();
-		});
-
-		// Confirm supplier
-		$("#confirm-supplier").on("click", function () {
-			const supplierId = $("#SupplierId").val();
-			$("#ConfirmedSupplierId").val(supplierId);
-
-			if (!supplierId || supplierId === "0") {
-				alert("Please select a valid supplier.");
-				return;
-			}
-
-			$("#SupplierId").prop("disabled", true);
-			$("#productModal").modal("show");
-		});
-
-		// Save products and close modal
-		$("#save-products-btn").on("click", function () {
-			productItems = [];
-
-			$("#product-items-body tr").each(function () {
-				const row = $(this);
-				const productId = row.find(".product-dropdown").val();
-				const productName = row.find(".product-dropdown option:selected").text();
-				const unitPrice = parseFloat(row.find(".unit-price").val()) || 0;
-				const quantity = parseInt(row.find(".quantity").val()) || 0;
-
-				if (productId && quantity > 0) {
-					productItems.push({
-						ProductId: parseInt(productId),
-						ProductName: productName,
-						UnitPrice: unitPrice,
-						Quantity: quantity
-					});
-				}
-			});
-
-			// Save to hidden input
-			$("#SerializedItems").val(JSON.stringify(productItems));
-			updateTotalCost();
-			$("#productModal").modal("hide");
-		});
-
-		// Calculate total order cost
-		function updateTotalCost() {
-			let total = 0;
-			$("#product-items-body tr").each(function () {
-				const row = $(this);
-				const price = parseFloat(row.find(".unit-price").val()) || 0;
-				const qty = parseInt(row.find(".quantity").val()) || 0;
-				total += price * qty;
-			});
-			$("#total-cost-text").text(`$${total.toFixed(2)}`);
-		}
-
-		// Load products for the selected supplier
-	function loadSupplierProducts(index) {
-		const supplierId = $("#SupplierId").val();
-		const row = $(`#product-items-body tr[data-index="${index}"]`);
-		const dropdown = row.find(".product-dropdown");
-
-		// Preserve selected value if it exists
-		const selectedValue = dropdown.val();
-
-		$.ajax({
-			url: '/Admin/PurchaseOrder/GetProductsBySupplier',
-			type: 'GET',
-			data: { supplierId: supplierId },
-			success: function (data) {
-				dropdown.empty();
-				data.forEach(p => {
-					const option = new Option(p.name, p.id);
-					dropdown.append(option);
-				});
-
-				// Restore previous selection
-				if (selectedValue) {
-					dropdown.val(selectedValue);
-				}
-			},
-			error: function () {
-				alert("Failed to load products.");
-			}
-		});
-	}
-	//Replace JS Table Rendering Logic
-	function renderProductTable() {
-		const tbody = $("#product-items-body");
-		tbody.empty();
-
-		productItems.forEach((item, index) => {
-			const total = (item.UnitPrice * item.Quantity).toFixed(2);
-				const row = `
-				<tr data-index="${index}">
-					<td><img src="${item.PictureUrl || '/images/thumb.png'}" alt="" style="height:50px;"/></td>
-					<td>
-						<strong>${item.ProductName}</strong><br/>
-						<small>SKU: ${item.Sku || '-'}</small>
-					</td>
-					<td>$${item.UnitPrice.toFixed(2)}</td>
-					<td>${item.Quantity}</td>
-					<td>$${total}</td>
-					<td>
-						<button type="button" class="btn btn-sm btn-secondary edit-product" data-index="${index}">
-							<i class="fas fa-edit"></i> Edit
-						</button>
-						<button type="button" class="btn btn-sm btn-danger delete-product" data-index="${index}">
-							<i class="fas fa-trash"></i> Delete
-						</button>
-					</td>
-				</tr>
-				`;
-
-			tbody.append(row);
-		});
-
-		updateTotalCost(); // recalculate overall total
-		$("#SerializedItems").val(JSON.stringify(productItems)); // update hidden input
-	}
-	//Open Product Editor
-	function openProductEditor(existingItem = null, rowIndex = -1) {
-		const supplierId = $("#SupplierId").val();
-
-		if (!supplierId || supplierId === "0") {
-			alert("Please select a supplier first.");
+</section>
+<script>
+	//this will open the popUp
+	function openAddProductPopup() {
+		var supplierId = $('#SupplierId').val();
+		if (!supplierId) {
+			alert('Please select a supplier first.');
 			return;
 		}
 
-		$("#editRowIndex").val(rowIndex);
-		$("#productEditorModal").modal("show");
-
-		$.ajax({
-			url: '/Admin/PurchaseOrder/GetProductsBySupplier',
-			type: 'GET',
-			data: { supplierId: supplierId },
-			success: function (data) {
-				const dropdown = $("#productSelect");
-				dropdown.empty();
-				data.forEach(p => {
-					const option = new Option(`${p.name} (SKU: ${p.sku})`, p.id);
-					option.dataset.sku = p.sku;
-					option.dataset.pictureurl = p.pictureUrl;
-					dropdown.append(option);
-				});
-
-				if (existingItem) {
-					dropdown.val(existingItem.ProductId);
-					$("#unitPriceInput").val(existingItem.UnitPrice);
-					$("#quantityInput").val(existingItem.Quantity);
-				} else {
-					$("#unitPriceInput").val('');
-					$("#quantityInput").val('');
-				}
-			}
-		});
+		var url = '/Admin/PurchaseOrder/AddProductPopup?supplierId=' + supplierId;
+		window.open(url, 'Add Product', 'width=1000,height=600,resizable=yes,scrollbars=yes');
+	}
+	// This will refresh the parent page aka this page when added new product.
+	function refreshSelectedProductsGrid() {
+		$('#selectedProducts-grid').DataTable().ajax.reload();
 	}
 
-	// Save Product Item
-	$("#saveProductItem").on("click", function () {
-		const productId = $("#productSelect").val();
-		const productName = $("#productSelect option:selected").text();
-		const unitPrice = parseFloat($("#unitPriceInput").val()) || 0;
-		const quantity = parseInt($("#quantityInput").val()) || 0;
-		const index = parseInt($("#editRowIndex").val());
-
-		if (!productId || quantity <= 0 || unitPrice <= 0) {
-			alert("Please provide valid product, price and quantity.");
-			return;
+	$(function() {
+	  // If the grid already has rows (for edit scenarios), disable supplier
+		if ($('#products-grid-body tr').length > 0) {
+			$('#SupplierId').prop('disabled', true);
 		}
-
-		const selectedOption = $("#productSelect option:selected")[0];
-
-		const item = {
-			ProductId: parseInt(productId),
-			ProductName: productName,
-			UnitPrice: unitPrice,
-			Quantity: quantity,
-			Sku: selectedOption.dataset.sku || '',
-			PictureUrl: selectedOption.dataset.pictureurl || ''
-		};
-
-		if (index === -1) {
-			productItems.push(item);
-		} else {
-			productItems[index] = item;
-		}
-
-		$("#productEditorModal").modal("hide");
-		renderProductTable(); // re-render table
 	});
+	
 
-
-	</script>
-
-
+</script>

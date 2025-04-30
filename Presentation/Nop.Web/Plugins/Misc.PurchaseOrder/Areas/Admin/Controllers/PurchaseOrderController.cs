@@ -16,6 +16,7 @@ using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
+using Nop.Web.Framework.Models.DataTables;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Controllers;
 [AuthorizeAdmin]
@@ -103,55 +104,139 @@ public class PurchaseOrderController : BasePluginController
     [HttpPost]
     public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
     {
-        // Step 1: Validate form
         if (!ModelState.IsValid)
-            return View(model);
-
-        // Step 2: Deserialize product items
-        if (string.IsNullOrEmpty(Request.Form["SerializedItems"]))
         {
-            ModelState.AddModelError(string.Empty, "Please add at least one product.");
-            return View(model);
+            return View(model); // Return to the form if validation fails
         }
 
-        var serializedItems = Request.Form["SerializedItems"];
-        var items = JsonConvert.DeserializeObject<List<PurchaseOrderItemModel>>(serializedItems);
-
-        if (items == null || !items.Any())
-        {
-            ModelState.AddModelError(string.Empty, "Product list is empty.");
-            return View(model);
-        }
-
-        // Step 3: Calculate total cost
-        var totalCost = items.Sum(i => i.UnitPrice * i.Quantity);
-
-        // Step 4: Create and save PurchaseOrder entity
+        // Create new PurchaseOrder
         var purchaseOrder = new PurchaseOrders
         {
             SupplierId = model.SupplierId,
-            TotalCost = totalCost,
-            CreatedOnUtc = DateTime.UtcNow
+            CreatedOnUtc = DateTime.UtcNow,
+            TotalCost = model.TotalCost
         };
-        await _purchaseOrderRepository.InsertAsync(purchaseOrder);
 
-        // Step 5: Insert PurchaseOrderItems
-        foreach (var item in items)
+        // Save the Purchase Order
+        await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
+
+        // Save PurchaseOrderItems (Products)
+        foreach (var product in model.SelectedProducts)
         {
-            var orderItem = new PurchaseOrderItems
+            var purchaseOrderItem = new PurchaseOrderItems
             {
                 PurchaseOrderId = purchaseOrder.Id,
-                ProductId = item.ProductId,
-                UnitPrice = item.UnitPrice,
-                Quantity = item.Quantity,
-                TotalCost = item.UnitPrice * item.Quantity
+                ProductId = product.ProductId,
+                UnitPrice = product.UnitPrice,
+                Quantity = product.Quantity,
+                TotalCost = product.TotalCost
             };
-            await _purchaseOrderItemRepository.InsertAsync(orderItem);
+
+            await _purchaseOrderItemRepository.InsertAsync(purchaseOrderItem);
+
+            // Update inventory: Increase stock quantity
+            var productEntity = await _productService.GetProductByIdAsync(product.ProductId);
+            if (productEntity != null)
+            {
+                productEntity.StockQuantity += product.Quantity;
+                await _productService.UpdateProductAsync(productEntity); // Assuming the service updates inventory
+            }
         }
 
-        // Step 6: Redirect back to list
+        // Optionally: Redirect to the list page with a success message
+        TempData["SuccessMessage"] = "Purchase Order has been saved successfully!";
         return RedirectToAction("List");
     }
+
+
+    // Fix for the CS1061 error in the AddProductPopup method
+    public IActionResult AddProductPopup(int supplierId)
+    {
+        // Await the asynchronous method to get the list of products
+        var productsTask = _supplierServices.GetProductsBySupplierIdAsync(supplierId);
+        var products = productsTask.Result.Select(p => new PurchaseOrderPopupProductModel
+        {
+            ProductId = p.Id,
+            ProductName = p.Name,
+            UnitPrice = p.Price // Or any other field that holds the unit price
+        }).ToList();
+
+        // Create and return the view with products
+        var model = new AddProductPopupModel
+        {
+            SupplierId = supplierId,
+            Products = products
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public IActionResult AddSelectedProducts(List<PurchaseOrderItemModel> products)
+    {
+        // Save to TempData as JSON string
+        TempData["SelectedProducts"] = JsonConvert.SerializeObject(products);
+        TempData.Keep("SelectedProducts");
+
+        return Json(new { success = true });
+    }
+
+
+    [HttpPost]
+    public IActionResult LoadSelectedProducts()
+    {
+        try
+        {
+            var productJson = TempData.Peek("SelectedProducts") as string;
+
+            // Safety: always keep TempData alive to avoid wipe after peek
+            if (!string.IsNullOrEmpty(productJson))
+                TempData.Keep("SelectedProducts");
+
+            var products = string.IsNullOrEmpty(productJson)
+                ? new List<PurchaseOrderItemModel>()
+                : JsonConvert.DeserializeObject<List<PurchaseOrderItemModel>>(productJson);
+
+            return Json(new
+            {
+                data = products,
+                recordsTotal = products.Count,
+                recordsFiltered = products.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            // Optional: Log the error
+            return Json(new
+            {
+                data = new List<object>(),
+                recordsTotal = 0,
+                recordsFiltered = 0
+            });
+        }
+    }
+
+
+    [HttpPost]
+    public IActionResult DeleteProduct(int productId)
+    {
+        var productJson = TempData["SelectedProducts"] as string;
+        if (string.IsNullOrEmpty(productJson))
+            return Json(new { success = false });
+
+        var products = JsonConvert.DeserializeObject<List<PurchaseOrderItemModel>>(productJson);
+
+        var productToRemove = products.FirstOrDefault(p => p.ProductId == productId);
+        if (productToRemove != null)
+        {
+            products.Remove(productToRemove);
+            TempData["SelectedProducts"] = JsonConvert.SerializeObject(products);
+            TempData.Keep("SelectedProducts");
+        }
+
+        return Json(new { success = true });
+    }
+
 
     [HttpGet]
     public async Task<IActionResult> GetProductsBySupplier(int supplierId)

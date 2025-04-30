@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
 public class CreatePurchaseOrderModel
 {
+    [Display(Name = "Select a Supplier")]
     public int SupplierId { get; set; }
     public IList<SelectListItem> AvailableSuppliers { get; set; } = new List<SelectListItem>();
 
     public DateTime OrderDate { get; set; }
-    public string AdminComment { get; set; }
-
-    public IList<PurchaseOrderItemModel> Items { get; set; } = new List<PurchaseOrderItemModel>();
+    public IList<PurchaseOrderItemModel> SelectedProducts { get; set; } = new List<PurchaseOrderItemModel>();
     public decimal TotalCost { get; set; }
 }
 public class PurchaseOrderItemModel
