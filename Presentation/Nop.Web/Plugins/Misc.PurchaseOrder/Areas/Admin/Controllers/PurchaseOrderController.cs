@@ -3,13 +3,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Nop.Core;
 using Nop.Core.Caching;
+using Nop.Core.Domain.Catalog;
 using Nop.Data;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
+using Nop.Services.Catalog;
 using Nop.Services.Localization;
+using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
@@ -29,6 +32,9 @@ public class PurchaseOrderController : BasePluginController
     private readonly ISupplierServices _supplierServices;
     private readonly IRepository<PurchaseOrders> _purchaseOrderRepository;
     private readonly IRepository<PurchaseOrderItems> _purchaseOrderItemRepository;
+    private readonly IPictureService _pictureService;
+    private readonly IProductService _productService;
+    private readonly IRepository<ProductPicture> _productPictureRepository;
 
     public PurchaseOrderController(
         IPurchaseOrdersService purchaseOrdersService,
@@ -40,7 +46,10 @@ public class PurchaseOrderController : BasePluginController
         IStaticCacheManager staticCacheManager,
         ISupplierServices supplierServices,
         IRepository<PurchaseOrders> purchaseOrderRepository,
-        IRepository<PurchaseOrderItems> purchaseOrderItemRepository
+        IRepository<PurchaseOrderItems> purchaseOrderItemRepository,
+        IPictureService pictureService,
+        IProductService productService,
+        IRepository<ProductPicture> productPictureRepository
         )
     {
         _purchaseOrdersService = purchaseOrdersService;
@@ -53,6 +62,9 @@ public class PurchaseOrderController : BasePluginController
         _supplierServices = supplierServices;
         _purchaseOrderRepository = purchaseOrderRepository;
         _purchaseOrderItemRepository = purchaseOrderItemRepository;
+        _pictureService = pictureService;
+        _productService = productService;
+        _productPictureRepository = productPictureRepository;
     }
     // Logics for List view
     public async Task<IActionResult> List()
@@ -146,7 +158,30 @@ public class PurchaseOrderController : BasePluginController
     {
         var products = await _supplierServices.GetProductsBySupplierIdAsync(supplierId);
 
-        var result = products.Select(p => new { id = p.Id, name = p.Name }).ToList();
+        var result = new List<object>();
+
+        foreach (var product in products)
+        {
+            // Get first picture for this product
+            var pictureId = (await _productPictureRepository.Table
+                .Where(pp => pp.ProductId == product.Id)
+                .OrderBy(pp => pp.DisplayOrder)
+                .Select(pp => pp.PictureId)
+                .FirstOrDefaultAsync());
+
+            var pictureUrl = await _pictureService.GetPictureUrlAsync(pictureId, 75, true);
+
+            result.Add(new
+            {
+                id = product.Id,
+                name = product.Name,
+                sku = product.Sku,
+                pictureUrl = pictureUrl
+            });
+        }
+
         return Json(result);
     }
+
+
 }

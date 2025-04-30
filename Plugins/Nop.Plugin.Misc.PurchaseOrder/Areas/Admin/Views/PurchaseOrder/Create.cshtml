@@ -59,23 +59,26 @@
 				</div>
 
 				<div class="modal-body">
-					<table class="table table-bordered" id="product-items-table">
+					<table class="table table-hover table-bordered" id="product-items-table">
 						<thead>
 							<tr>
-								<th style="width: 30%;">Product</th>
-								<th style="width: 15%;">Unit Price</th>
-								<th style="width: 15%;">Quantity</th>
-								<th style="width: 20%;">Total</th>
-								<th style="width: 10%;"></th>
+								<th>Picture</th>
+								<th>Product name</th>
+								<th>Unit Price</th>
+								<th>Quantity</th>
+								<th>Total</th>
+								<th style="width: 100px;">Edit</th>
 							</tr>
 						</thead>
 						<tbody id="product-items-body">
-							<!-- Rows will be added dynamically -->
+							<!-- Rows will be added here dynamically -->
 						</tbody>
 					</table>
-					<button type="button" class="btn btn-secondary" id="add-product-row">
-						<i class="fas fa-plus-circle"></i> Add Product
+
+					<button type="button" class="btn btn-primary" id="add-product-row">
+						<i class="fas fa-plus-circle"></i> Add product
 					</button>
+
 				</div>
 
 				<div class="modal-footer">
@@ -89,6 +92,45 @@
 			</div>
 		</div>
 	</div>
+	<!-- Product Editor Modal (used for Add and Edit) -->
+	<div class="modal fade" id="productEditorModal" tabindex="-1" role="dialog" aria-labelledby="productEditorModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="productEditorModalLabel">Product Details</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+
+				<div class="modal-body">
+					<input type="hidden" id="editRowIndex" value="-1" />
+
+					<div class="form-group">
+						<label for="productSelect">Product</label>
+						<select id="productSelect" class="form-control"></select>
+					</div>
+
+					<div class="form-group">
+						<label for="unitPriceInput">Unit Price</label>
+						<input type="number" class="form-control" id="unitPriceInput" step="0.01" />
+					</div>
+
+					<div class="form-group">
+						<label for="quantityInput">Quantity</label>
+						<input type="number" class="form-control" id="quantityInput" step="1" />
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="saveProductItem">
+						<i class="fas fa-check"></i> Save
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 
 </form>
 
@@ -98,34 +140,16 @@
 		let productItems = [];
 
 		// Add new product row
-		$("#add-product-row").on("click", function () {
-			const index = productItems.length;
-			const row = `
-				<tr data-index="${index}">
-					<td>
-						<select class="form-control product-dropdown"></select>
-					</td>
-					<td>
-						<input type="number" class="form-control unit-price" step="0.01" min="0" />
-					</td>
-					<td>
-						<input type="number" class="form-control quantity" step="1" min="1" />
-					</td>
-					<td>
-						<span class="total-cost">$0.00</span>
-					</td>
-					<td>
-						<button type="button" class="btn btn-danger btn-sm remove-row">
-							<i class="fas fa-trash-alt"></i>
-						</button>
-					</td>
-				</tr>
-			`;
-			$("#product-items-body").append(row);
+			$("#add-product-row").on("click", function () {
+				openProductEditor(); // create this next
+			});
+		// Edit Product Row.
+			$(document).on("click", ".edit-product", function () {
+				const index = $(this).data("index");
+				const item = productItems[index];
+				openProductEditor(item, index);
+			});
 
-			// After adding, load supplier products into the dropdown
-			loadSupplierProducts(index);
-		});
 
 		// Remove row
 		$(document).on("click", ".remove-row", function () {
@@ -198,7 +222,7 @@
 		}
 
 		// Load products for the selected supplier
-			function loadSupplierProducts(index) {
+	function loadSupplierProducts(index) {
 		const supplierId = $("#SupplierId").val();
 		const row = $(`#product-items-body tr[data-index="${index}"]`);
 		const dropdown = row.find(".product-dropdown");
@@ -227,6 +251,113 @@
 			}
 		});
 	}
+	//Replace JS Table Rendering Logic
+	function renderProductTable() {
+		const tbody = $("#product-items-body");
+		tbody.empty();
+
+		productItems.forEach((item, index) => {
+			const total = (item.UnitPrice * item.Quantity).toFixed(2);
+				const row = `
+				<tr data-index="${index}">
+					<td><img src="${item.PictureUrl || '/images/thumb.png'}" alt="" style="height:50px;"/></td>
+					<td>
+						<strong>${item.ProductName}</strong><br/>
+						<small>SKU: ${item.Sku || '-'}</small>
+					</td>
+					<td>$${item.UnitPrice.toFixed(2)}</td>
+					<td>${item.Quantity}</td>
+					<td>$${total}</td>
+					<td>
+						<button type="button" class="btn btn-sm btn-secondary edit-product" data-index="${index}">
+							<i class="fas fa-edit"></i> Edit
+						</button>
+						<button type="button" class="btn btn-sm btn-danger delete-product" data-index="${index}">
+							<i class="fas fa-trash"></i> Delete
+						</button>
+					</td>
+				</tr>
+				`;
+
+			tbody.append(row);
+		});
+
+		updateTotalCost(); // recalculate overall total
+		$("#SerializedItems").val(JSON.stringify(productItems)); // update hidden input
+	}
+	//Open Product Editor
+	function openProductEditor(existingItem = null, rowIndex = -1) {
+		const supplierId = $("#SupplierId").val();
+
+		if (!supplierId || supplierId === "0") {
+			alert("Please select a supplier first.");
+			return;
+		}
+
+		$("#editRowIndex").val(rowIndex);
+		$("#productEditorModal").modal("show");
+
+		$.ajax({
+			url: '/Admin/PurchaseOrder/GetProductsBySupplier',
+			type: 'GET',
+			data: { supplierId: supplierId },
+			success: function (data) {
+				const dropdown = $("#productSelect");
+				dropdown.empty();
+				data.forEach(p => {
+					const option = new Option(`${p.name} (SKU: ${p.sku})`, p.id);
+					option.dataset.sku = p.sku;
+					option.dataset.pictureurl = p.pictureUrl;
+					dropdown.append(option);
+				});
+
+				if (existingItem) {
+					dropdown.val(existingItem.ProductId);
+					$("#unitPriceInput").val(existingItem.UnitPrice);
+					$("#quantityInput").val(existingItem.Quantity);
+				} else {
+					$("#unitPriceInput").val('');
+					$("#quantityInput").val('');
+				}
+			}
+		});
+	}
+
+	// Save Product Item
+	$("#saveProductItem").on("click", function () {
+		const productId = $("#productSelect").val();
+		const productName = $("#productSelect option:selected").text();
+		const unitPrice = parseFloat($("#unitPriceInput").val()) || 0;
+		const quantity = parseInt($("#quantityInput").val()) || 0;
+		const index = parseInt($("#editRowIndex").val());
+
+		if (!productId || quantity <= 0 || unitPrice <= 0) {
+			alert("Please provide valid product, price and quantity.");
+			return;
+		}
+
+		const selectedOption = $("#productSelect option:selected")[0];
+
+		const item = {
+			ProductId: parseInt(productId),
+			ProductName: productName,
+			UnitPrice: unitPrice,
+			Quantity: quantity,
+			Sku: selectedOption.dataset.sku || '',
+			PictureUrl: selectedOption.dataset.pictureurl || ''
+		};
+
+		if (index === -1) {
+			productItems.push(item);
+		} else {
+			productItems[index] = item;
+		}
+
+		$("#productEditorModal").modal("hide");
+		renderProductTable(); // re-render table
+	});
+
+
 	</script>
 
 
