@@ -8,6 +8,7 @@
 
 <form asp-action="Create" method="post">
 	<input type="hidden" name="SerializedItems" id="SerializedItems" />
+	<input type="hidden" id="ConfirmedSupplierId" name="SupplierId" />
 	<div class="content-header clearfix">
 		<h1 class="float-left">
 			Add New Purchase Order
@@ -146,6 +147,8 @@
 		// Confirm supplier
 		$("#confirm-supplier").on("click", function () {
 			const supplierId = $("#SupplierId").val();
+			$("#ConfirmedSupplierId").val(supplierId);
+
 			if (!supplierId || supplierId === "0") {
 				alert("Please select a valid supplier.");
 				return;
@@ -195,25 +198,35 @@
 		}
 
 		// Load products for the selected supplier
-		function loadSupplierProducts(index) {
-			const supplierId = $("#SupplierId").val();
-			const dropdown = $(`#product-items-body tr[data-index="${index}"] .product-dropdown`);
+			function loadSupplierProducts(index) {
+		const supplierId = $("#SupplierId").val();
+		const row = $(`#product-items-body tr[data-index="${index}"]`);
+		const dropdown = row.find(".product-dropdown");
 
-			$.ajax({
-				url: '/Admin/PurchaseOrder/GetProductsBySupplier',
-				type: 'GET',
-				data: { supplierId: supplierId },
-				success: function (data) {
-					dropdown.empty();
-					data.forEach(p => {
-						dropdown.append(`<option value="${p.id}">${p.name}</option>`);
-					});
-				},
-				error: function () {
-					alert("Failed to load products.");
+		// Preserve selected value if it exists
+		const selectedValue = dropdown.val();
+
+		$.ajax({
+			url: '/Admin/PurchaseOrder/GetProductsBySupplier',
+			type: 'GET',
+			data: { supplierId: supplierId },
+			success: function (data) {
+				dropdown.empty();
+				data.forEach(p => {
+					const option = new Option(p.name, p.id);
+					dropdown.append(option);
+				});
+
+				// Restore previous selection
+				if (selectedValue) {
+					dropdown.val(selectedValue);
 				}
-			});
-		}
+			},
+			error: function () {
+				alert("Failed to load products.");
+			}
+		});
+	}
 	</script>
 
 
