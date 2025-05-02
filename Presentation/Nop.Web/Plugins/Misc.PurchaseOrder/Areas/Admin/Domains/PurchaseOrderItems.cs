@@ -3,7 +3,7 @@
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 public class PurchaseOrderItems : BaseEntity
 {
-    public int PurchaseOrderId { get; set; }
+    public Guid PurchaseOrderNo { get; set; }
     public int ProductId { get; set; }
     public decimal UnitPrice { get; set; }
     public int Quantity { get; set; }

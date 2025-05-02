@@ -19,6 +19,7 @@
 <section class="content">
 	<div class="container-fluid">
 		<form asp-action="Create" method="post" id="create-form">
+			<input type="hidden" asp-for="PurchaseOrderNo" />
 			<div class="card card-default">
 				<div class="card-body">
 					<div class="form-horizontal">
@@ -35,52 +36,10 @@
 					</div>
 				</div>
 			</div>
-			<!-- Product Grid Section -->
-			<div class="card card-default">
-				<div class="card-body">
-					<div class="clearfix">
-						<h5 class="float-left">Selected Products</h5>
-					</div>
+			
+			@await Html.PartialAsync("_CreateOrUpdateSupplierProducts", Model)
 
-					@await Html.PartialAsync("Table", new DataTablesModel
-					{
-						Name = "selectedProducts-grid",
-						UrlRead = new DataUrl("LoadSelectedProducts", "PurchaseOrder", null),
-						Length = 10,
-						Processing = false,
-						ServerSide = false, // we're reading from TempData, not paging from DB
-						ColumnCollection = new List<ColumnProperty>
-						{
-						new ColumnProperty(nameof(PurchaseOrderItemModel.ProductName))
-						{
-						Title = "Product"
-						},
-						new ColumnProperty(nameof(PurchaseOrderItemModel.UnitPrice))
-						{
-						Title = "Unit Price"
-						},
-						new ColumnProperty(nameof(PurchaseOrderItemModel.Quantity))
-						{
-						Title = "Quantity"
-						},
-						new ColumnProperty(nameof(PurchaseOrderItemModel.TotalCost))
-						{
-						Title = "Total Cost"
-						},
-						new ColumnProperty(nameof(PurchaseOrderItemModel.ProductId))
-						{
-							Title = "Actions",
-							ClassName = NopColumnClassDefaults.Button,
-							Render = new RenderButtonRemove(new DataUrl("DeleteProduct").Url)
-						}
-					}
-})
-				</div>
-			</div>
 
-			<button type="button" class="btn btn-primary float-left" onclick="openAddProductPopup()">
-				 Add Product
-			</button>
 		</form>
 	</div>
 </section>

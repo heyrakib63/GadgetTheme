@@ -8,7 +8,7 @@ public class PurchaseOrderItemsBuilder : NopEntityBuilder<PurchaseOrderItems>
     public override void MapEntity(CreateTableExpressionBuilder table)
     {
         table.WithColumn(nameof(PurchaseOrderItems.Id)).AsInt32().PrimaryKey().Identity()
-            .WithColumn(nameof(PurchaseOrderItems.PurchaseOrderId)).AsInt32()
+            .WithColumn(nameof(PurchaseOrders.PurchaseOrderNo)).AsGuid().NotNullable()
             .WithColumn(nameof(PurchaseOrderItems.ProductId)).AsInt32()
             .WithColumn(nameof(PurchaseOrderItems.UnitPrice)).AsDecimal()
             .WithColumn(nameof(PurchaseOrderItems.Quantity)).AsInt32()

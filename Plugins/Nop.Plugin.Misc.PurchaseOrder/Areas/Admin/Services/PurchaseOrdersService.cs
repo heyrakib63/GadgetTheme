@@ -1,6 +1,11 @@
 ﻿using Nop.Core;
+using Nop.Core.Caching;
+using Nop.Core.Domain.Catalog;
 using Nop.Data;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services.Caching;
+using Nop.Services.Catalog;
 using Nop.Services.Html;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
@@ -9,11 +14,23 @@ public class PurchaseOrdersService : IPurchaseOrdersService
 {
     private readonly IRepository<PurchaseOrders> _purchaseOrdersRepository;
     protected readonly IHtmlFormatter _htmlFormatter;
+    private readonly IRepository<PurchaseOrderItems> _productSupplierRepository;
+    private readonly IRepository<Product> _productRepository;
+    private readonly IStaticCacheManager _staticCacheManager;
 
-    public PurchaseOrdersService(IRepository<PurchaseOrders> purchaseOrdersRepository, IHtmlFormatter htmlFormatter)
+    public PurchaseOrdersService(
+        IRepository<PurchaseOrders> purchaseOrdersRepository,
+        IHtmlFormatter htmlFormatter,
+        IRepository<PurchaseOrderItems> productSupplierRepository,
+        IRepository<Product> productRepository,
+        IStaticCacheManager staticCacheManager
+        )
     {
         _purchaseOrdersRepository = purchaseOrdersRepository;
         _htmlFormatter = htmlFormatter;
+        _productSupplierRepository = productSupplierRepository;
+        _productRepository = productRepository;
+        _staticCacheManager = staticCacheManager;
     }
     public virtual async Task<IList<PurchaseOrders>> GetAllPurchaseOrdersAsync()
     {
@@ -47,6 +64,28 @@ public class PurchaseOrdersService : IPurchaseOrdersService
     public virtual async Task InsertPurchaseOrdersAsync(PurchaseOrders purchaseOrder)
     {
         await _purchaseOrdersRepository.InsertAsync(purchaseOrder);
+    }
+
+    public virtual async Task<IList<PurchaseOrderItems>> GetSupplierProductsBySupplierIdAsync(Guid purchaseOrderNo, bool showHidden = false)
+    {
+        var query = from rp in _productSupplierRepository.Table
+                    join p in _productRepository.Table on rp.ProductId equals p.Id
+                    where rp.PurchaseOrderNo == purchaseOrderNo &&
+                          !p.Deleted &&
+                          (showHidden || p.Published)
+        orderby rp.ProductId, rp.Id
+        select rp;
+        var supplierProducts = await _staticCacheManager.GetAsync(_staticCacheManager.PrepareKeyForDefaultCache(NopPurchaseOrdersDefaults.SupplierProductsCacheKey, purchaseOrderNo, showHidden), async () => await query.ToListAsync());
+        return supplierProducts;
+    }
+    public virtual PurchaseOrderItems FindSupplierProduct(IList<PurchaseOrderItems> source, Guid purchaseOrderNo, int productId)
+    {
+        return source.FirstOrDefault(rp => rp.PurchaseOrderNo == purchaseOrderNo && rp.ProductId == productId);
+    }
+
+    public virtual async Task InsertSupplierProductAsync(PurchaseOrderItems supplierProduct)
+    {
+        await _productSupplierRepository.InsertAsync(supplierProduct);
     }
 }
 
