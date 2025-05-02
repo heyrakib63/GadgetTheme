@@ -2,7 +2,6 @@
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Data;
-using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services.Caching;
 using Nop.Services.Catalog;

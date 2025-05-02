@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
-using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
@@ -66,19 +64,14 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
             pageSize: searchModel.PageSize);
         //prepare grid model
         var count = purchaseOrders.Count;
-        //var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.AdminSupplierAllModelKey, searchModel.Name, searchModel.Email, 0);
-        //var output = await _staticCacheManager.GetAsync(cacheKey, async () =>
-        //{
-            var model = await new PurchaseOrdersListModel().PrepareToGridAsync(searchModel, purchaseOrders, () =>
+        var model = await new PurchaseOrdersListModel().PrepareToGridAsync(searchModel, purchaseOrders, () =>
+        {
+            return purchaseOrders.SelectAwait(async purchaseOrder =>
             {
-                return purchaseOrders.SelectAwait(async purchaseOrder =>
-                {
-                    return await PreparePurchaseOrdersModelAsync(null, purchaseOrder, true);
-                });
+                return await PreparePurchaseOrdersModelAsync(null, purchaseOrder, true);
             });
-            return model;
-        //});
-        //return output;
+        });
+        return model;
     }
     // Returns a single supplier model
     public async Task<PurchaseOrdersModel> PreparePurchaseOrdersModelAsync(PurchaseOrdersModel model, PurchaseOrders purchaseOrder, bool excludeProperties = false)
@@ -114,8 +107,6 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
     {
         if (searchModel == null)
             throw new ArgumentNullException(nameof(searchModel));
-        // Simulate async behavior to resolve CS1998
-
         // Load available suppliers
         var suppliers = await _supplierServices.GetAllSupplierAsync();
         searchModel.AvailableSuppliers = suppliers.Select(supplier => new SelectListItem
@@ -133,17 +124,7 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         searchModel.SetGridPageSize();
         return searchModel;
     }
-
-
-
     // Added DataTabel Codes:
-
-
-
-
-
-
-
     public virtual async Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, string purchaseOrderNo)
     {
         ArgumentNullException.ThrowIfNull(searchModel);

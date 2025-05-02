@@ -18,7 +18,10 @@ public class ViewLocationExpander : IViewLocationExpander
             {
                 $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/{{0}}.cshtml",
                 $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/{{1}}/{{0}}.cshtml",
-                 $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/PurchaseOrders/{{0}}.cshtml"
+                $"/Plugins/Misc.PurchaseOrder/Areas/Admin/Views/PurchaseOrders/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{1}}/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/{{0}}.cshtml"
             }.Concat(viewLocations);
         }
         else

@@ -12,10 +12,10 @@ public class NopStartup : INopStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<RazorViewEngineOptions>(options =>
-        {
-            options.ViewLocationExpanders.Add(new ViewLocationExpander());
-        });
+        //services.Configure<RazorViewEngineOptions>(options =>
+        //{
+        //    options.ViewLocationExpanders.Add(new ViewLocationExpander());
+        //});
         services.AddScoped<ISupplierServices, SupplierService>();
         services.AddScoped<IProductSupplierMappingService, ProductSupplierMappingService>();
         services.AddScoped<ISupplierModelFactory, SupplierModelFactory>();

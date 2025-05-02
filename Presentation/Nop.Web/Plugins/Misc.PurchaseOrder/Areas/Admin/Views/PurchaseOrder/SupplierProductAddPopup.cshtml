@@ -24,8 +24,6 @@ else
 		  asp-route-btnId="@Context.Request.Query["btnId"]"
 		  asp-route-formId="@Context.Request.Query["formId"]">
 		<div class="content-header clearfix">
-			@* <p>@Model.SupplierId</p> *@
-			<p>@Context.Request.Query["supplierId"]</p>
 			<h1 class="float-left">
 				@T("Admin.Catalog.Products.RelatedProducts.AddNew")
 			</h1>
@@ -49,7 +47,7 @@ else
 												<nop-editor asp-for="SearchProductName" />
 											</div>
 										</div>
-										<div class="form-group row" @(Model.AvailableCategories.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
+										<div class="col-sm-6" @(Model.AvailableCategories.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
 											<div class="col-sm-5">
 												<nop-label asp-for="SearchCategoryId" />
 											</div>

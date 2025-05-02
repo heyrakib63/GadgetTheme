@@ -64,7 +64,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
         public async Task<IActionResult> List()
         {
             var searchModel = await _supplierModelFactory.PrepareSupplierSearchModelAsync(new SupplierSearchModel());
-            return View("List", searchModel);
+            return View(searchModel);
         }
         // Logics for posting list of Suppliers
         [HttpPost]
@@ -77,7 +77,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var model = await _supplierModelFactory.PrepareSupplierModelAsync(new SupplierModel(), null);
-            return View("Create", model);
+            return View(model);
         }
         // The post method for Insert and logic where should it go after Inserting the data.
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -100,7 +100,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = supplier.Id }) : RedirectToAction("List");
             }
             model = await _supplierModelFactory.PrepareSupplierModelAsync(model, null);
-            return View("Create", model);
+            return View(model);
         }
         // The edit view.
         public virtual async Task<IActionResult> Edit(int id)
@@ -113,7 +113,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
             }
             //prepare model
             var model = await _supplierModelFactory.PrepareSupplierModelAsync(null, supplier);
-            return View("Edit", model);
+            return View(model);
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -141,7 +141,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
             await UpdateLocalesAsync(supplier, model);
             //prepare model
             model = await _supplierModelFactory.PrepareSupplierModelAsync(model, supplier, true);
-            return View("Edit", model);
+            return View(model);
         }
         // Delete a single supplier.
         [HttpPost]
