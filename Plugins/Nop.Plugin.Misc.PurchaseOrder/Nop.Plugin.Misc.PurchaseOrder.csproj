@@ -89,9 +89,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Areas\Admin\Views\PurchaseOrder\AddProductPopup.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Areas\Admin\Views\PurchaseOrder\Create.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -99,9 +96,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Areas\Admin\Views\PurchaseOrder\SupplierProductAddPopup.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Areas\Admin\Views\PurchaseOrder\_CreateOrUpdateSupplierProducts.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Areas\Admin\Views\_ViewImports.cshtml">

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
@@ -143,7 +144,7 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
 
 
 
-    public virtual async Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, Guid purchaseOrderNo)
+    public virtual async Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, string purchaseOrderNo)
     {
         ArgumentNullException.ThrowIfNull(searchModel);
 
@@ -216,7 +217,12 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
 
         if (searchModel.SupplierId > 0)
         {
-            var mappedProductIds = await _supplierServices.GetProductsBySupplierIdAsync(searchModel.SupplierId);
+            var supplierProducts = await _supplierServices.GetProductsBySupplierIdAsync(searchModel.SupplierId);
+            var mappedProductIds = supplierProducts.Select(p => p.Id).ToList();
+
+            var filteredProducts = products.Where(product => mappedProductIds.Contains(product.Id)).ToList();
+
+            products = new PagedList<Product>(filteredProducts, products.PageIndex, products.PageSize, filteredProducts.Count);
         }
 
         //prepare grid model

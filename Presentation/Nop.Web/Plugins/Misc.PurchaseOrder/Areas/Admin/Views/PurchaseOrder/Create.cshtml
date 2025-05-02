@@ -19,7 +19,8 @@
 <section class="content">
 	<div class="container-fluid">
 		<form asp-action="Create" method="post" id="create-form">
-			<input type="hidden" asp-for="PurchaseOrderNo" />
+			<input type="hidden" name="PurchaseOrderNo" value="@Model.PurchaseOrderNo.ToString()" />
+			<p>Generated GUID: @Model.PurchaseOrderNo</p>
 			<div class="card card-default">
 				<div class="card-body">
 					<div class="form-horizontal">
@@ -27,45 +28,107 @@
 						<!-- Supplier Dropdown -->
 						<div class="form-group row">
 							<div class="col-md-2">
-								<nop-label asp-for="SupplierId" Text="Select a Supplier" />
+								<nop-label asp-for="@Model.SupplierId" Text="Select a Supplier" />
 							</div>
-							<div class="col-md-10">
-								<nop-select asp-for="SupplierId" asp-items="@Model.AvailableSuppliers" htmlAttributes="new { id = \" SupplierId\" }" />
+							<div class="col-md-6">
+								<nop-select asp-for="@Model.SupplierId" asp-items="@Model.AvailableSuppliers"/>
+							</div>
+							<div class="col-md-4">
+								<button type="button" id="btnConfirmSupplier" class="btn btn-primary">Confirm Supplier</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			
-			@await Html.PartialAsync("_CreateOrUpdateSupplierProducts", Model)
+			<div class="card-body">
+				<p>
+					Selected Products
+				</p>
+				<div class="card card-default">
+					<div class="card-body">
 
+						@await Html.PartialAsync("Table", new DataTablesModel
+						{
+							Name = "supplierproducts-grid",
+							UrlRead = new DataUrl("SupplierProductList", "PurchaseOrder", new RouteValueDictionary { [nameof(Model.SupplierProductSearchModel.PurchaseOrderNo)] = Model.SupplierProductSearchModel.PurchaseOrderNo }),
+							UrlDelete = new DataUrl("SupplierProductDelete", "PurchaseOrder", null),
+							UrlUpdate = new DataUrl("SupplierProductUpdate", "PurchaseOrder", null),
+							Length = Model.SupplierProductSearchModel.PageSize,
+							LengthMenu = Model.SupplierProductSearchModel.AvailablePageSizes,
+							ColumnCollection = new List<ColumnProperty>
+						{
+						new ColumnProperty(nameof(SupplierProductModel.Product2Name))
+						{
+						Title = "Name"
+						},
+						new ColumnProperty(nameof(SupplierProductModel.DisplayOrder))
+						{
+						Title = "Display Order",
+						Width = "150",
+						ClassName = NopColumnClassDefaults.CenterAll,
+						Editable = true,
+						EditType = EditType.Number
+						},
+						new ColumnProperty(nameof(SupplierProductModel.ProductId2))
+						{
+						Title = T("Admin.Common.View").Text,
+						Width = "150",
+						ClassName = NopColumnClassDefaults.Button,
+						Render = new RenderButtonView(new DataUrl("~/Admin/PurchaseOrder/Edit/", nameof(SupplierProductModel.Product2Name)))
+						},
+						new ColumnProperty(nameof(SupplierProductModel.Id))
+						{
+						Title = T("Admin.Common.Edit").Text,
+						Width = "200",
+						ClassName =  NopColumnClassDefaults.Button,
+						Render = new RenderButtonsInlineEdit()
+						},
+						new ColumnProperty(nameof(SupplierProductModel.Id))
+						{
+						Title = T("Admin.Common.Delete").Text,
+						Width = "100",
+						Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+						ClassName = NopColumnClassDefaults.Button
+						}
+						}
+ });
+					</div>
 
+					<div class="card-footer">
+						<button type="button" id="btnAddProduct" class="btn btn-primary">Add Product</button>
+						<button type="submit" id="btnRefreshSupplierProducts" style="display: none"></button>
+						<script>
+							$(function() {
+								$('#btnRefreshSupplierProducts').click(function () {
+									//refresh grid
+									updateTable('#supplierproducts-grid');
+
+									//return false to don't reload a page
+									return false;
+								});
+							});
+						</script>
+					</div>
+				</div>
+			</div>
 		</form>
 	</div>
 </section>
 <script>
-	//this will open the popUp
-	function openAddProductPopup() {
-		var supplierId = $('#SupplierId').val();
-		if (!supplierId) {
-			alert('Please select a supplier first.');
-			return;
-		}
+	$(document).ready(function () {
+		$('#btnAddProduct').click(function () {
+			var supplierId = $('#SupplierId').val();
+			console.log("Supplier ID (from click):", supplierId);
 
-		var url = '/Admin/PurchaseOrder/AddProductPopup?supplierId=' + supplierId;
-		window.open(url, 'Add Product', 'width=1000,height=600,resizable=yes,scrollbars=yes');
-	}
-	// This will refresh the parent page aka this page when added new product.
-	function refreshSelectedProductsGrid() {
-		$('#selectedProducts-grid').DataTable().ajax.reload();
-	}
+			if (!supplierId || supplierId === "0") {
+				alert('Please select a supplier first.');
+				return;
+			}
 
-	$(function() {
-	  // If the grid already has rows (for edit scenarios), disable supplier
-		if ($('#products-grid-body tr').length > 0) {
-			$('#SupplierId').prop('disabled', true);
-		}
+			var url = '/Admin/PurchaseOrder/SupplierProductAddPopup?supplierId=' + supplierId;
+			window.open(url, 'Add Product', 'width=1000,height=600,resizable=yes,scrollbars=yes');
+		});
 	});
-	
-
 </script>
+

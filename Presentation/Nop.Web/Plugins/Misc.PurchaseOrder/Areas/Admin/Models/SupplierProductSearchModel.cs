@@ -10,7 +10,7 @@ public partial record SupplierProductSearchModel : BaseSearchModel
 {
     #region Properties
 
-    public Guid PurchaseOrderNo { get; set; }
+    public string PurchaseOrderNo { get; set; }
 
     #endregion
 }

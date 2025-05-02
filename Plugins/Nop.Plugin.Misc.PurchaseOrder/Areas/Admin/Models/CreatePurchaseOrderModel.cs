@@ -13,14 +13,14 @@ public class CreatePurchaseOrderModel
     public IList<SelectListItem> AvailableSuppliers { get; set; } = new List<SelectListItem>();
 
     public DateTime OrderDate { get; set; }
-    public Guid PurchaseOrderNo { get; set; }
+    public string PurchaseOrderNo { get; set; }
     public IList<PurchaseOrderItemModel> SelectedProducts { get; set; } = new List<PurchaseOrderItemModel>();
     public decimal TotalCost { get; set; }
     public SupplierProductSearchModel SupplierProductSearchModel { get; set; }
 }
 public class PurchaseOrderItemModel
 {
-
+    public string PurchaseOrderNo { get; set; }
     public int ProductId { get; set; }
     public string ProductName { get; set; }
     public decimal UnitPrice { get; set; }

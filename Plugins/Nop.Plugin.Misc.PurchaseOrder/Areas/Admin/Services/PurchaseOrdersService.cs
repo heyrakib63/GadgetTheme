@@ -2,7 +2,6 @@
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Data;
-using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services.Caching;
 using Nop.Services.Catalog;
@@ -66,11 +65,11 @@ public class PurchaseOrdersService : IPurchaseOrdersService
         await _purchaseOrdersRepository.InsertAsync(purchaseOrder);
     }
 
-    public virtual async Task<IList<PurchaseOrderItems>> GetSupplierProductsBySupplierIdAsync(Guid purchaseOrderNo, bool showHidden = false)
+    public virtual async Task<IList<PurchaseOrderItems>> GetSupplierProductsBySupplierIdAsync(string purchaseOrderNo, bool showHidden = false)
     {
         var query = from rp in _productSupplierRepository.Table
                     join p in _productRepository.Table on rp.ProductId equals p.Id
-                    where rp.PurchaseOrderNo == purchaseOrderNo &&
+                    where rp.PurchaseOrderNo.ToString() == purchaseOrderNo &&
                           !p.Deleted &&
                           (showHidden || p.Published)
         orderby rp.ProductId, rp.Id
@@ -78,9 +77,9 @@ public class PurchaseOrdersService : IPurchaseOrdersService
         var supplierProducts = await _staticCacheManager.GetAsync(_staticCacheManager.PrepareKeyForDefaultCache(NopPurchaseOrdersDefaults.SupplierProductsCacheKey, purchaseOrderNo, showHidden), async () => await query.ToListAsync());
         return supplierProducts;
     }
-    public virtual PurchaseOrderItems FindSupplierProduct(IList<PurchaseOrderItems> source, Guid purchaseOrderNo, int productId)
+    public virtual PurchaseOrderItems FindSupplierProduct(IList<PurchaseOrderItems> source, string purchaseOrderNo, int productId)
     {
-        return source.FirstOrDefault(rp => rp.PurchaseOrderNo == purchaseOrderNo && rp.ProductId == productId);
+        return source.FirstOrDefault(rp => rp.PurchaseOrderNo.ToString() == purchaseOrderNo && rp.ProductId == productId);
     }
 
     public virtual async Task InsertSupplierProductAsync(PurchaseOrderItems supplierProduct)

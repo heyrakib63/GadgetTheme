@@ -1,5 +1,4 @@
 ﻿using Nop.Core;
-using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
@@ -11,7 +10,7 @@ public interface IPurchaseOrdersService
     Task<IPagedList<PurchaseOrders>> SearchPurchaseOrdersAsync(int supplierId=0, DateTime? createdOnFrom = null,
     DateTime? createdOnTo = null, int pageIndex = -1, int pageSize = int.MaxValue);
     Task<IList<PurchaseOrders>> GetAllPurchaseOrdersAsync();
-    Task<IList<PurchaseOrderItems>> GetSupplierProductsBySupplierIdAsync(Guid purchaseOrderNo, bool showHidden = false);
-    PurchaseOrderItems FindSupplierProduct(IList<PurchaseOrderItems> source, Guid purchaseOrderNo, int productId);
+    Task<IList<PurchaseOrderItems>> GetSupplierProductsBySupplierIdAsync(string purchaseOrderNo, bool showHidden = false);
+    PurchaseOrderItems FindSupplierProduct(IList<PurchaseOrderItems> source, string purchaseOrderNo, int productId);
     Task InsertSupplierProductAsync(PurchaseOrderItems supplierProduct);
 }

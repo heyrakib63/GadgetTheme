@@ -85,7 +85,10 @@ public class PurchaseOrderController : BasePluginController
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var model = new CreatePurchaseOrderModel();
+        var model = new CreatePurchaseOrderModel
+        {
+            PurchaseOrderNo = Guid.NewGuid().ToString()
+        };
 
         // Load supplier dropdown
         var suppliers = await _supplierServices.GetAllSupplierAsync();
@@ -97,61 +100,62 @@ public class PurchaseOrderController : BasePluginController
             }).ToList();
 
         model.OrderDate = DateTime.UtcNow;
-        model.PurchaseOrderNo = Guid.NewGuid();
+        
 
         return View(model);
     }
 
-    // The post method for Insert and logic where should it go after Inserting the data.
-    //[HttpPost]
-    //public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
-    //{
-    //    if (!ModelState.IsValid)
-    //    {
-    //        return View(model); // Return to the form if validation fails
-    //    }
+    //The post method for Insert and logic where should it go after Inserting the data.
 
-    //    // Create new PurchaseOrder
-    //    var purchaseOrder = new PurchaseOrders
-    //    {
-    //        SupplierId = model.SupplierId,
-    //        CreatedOnUtc = DateTime.UtcNow,
-    //        TotalCost = model.TotalCost
-    //    };
+   [HttpPost]
+    public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model); // Return to the form if validation fails
+        }
 
-    //    // Save the Purchase Order
-    //    await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
+        // Create new PurchaseOrder
+        var purchaseOrder = new PurchaseOrders
+        {
+            SupplierId = model.SupplierId,
+            CreatedOnUtc = DateTime.UtcNow,
+            TotalCost = model.TotalCost
+        };
 
-    //    // Save PurchaseOrderItems (Products)
-    //    foreach (var product in model.SelectedProducts)
-    //    {
-    //        var purchaseOrderItem = new PurchaseOrderItems
-    //        {
-    //            ProductId = product.ProductId,
-    //            UnitPrice = product.UnitPrice,
-    //            Quantity = product.Quantity,
-    //            TotalCost = product.TotalCost
-    //        };
+        // Save the Purchase Order
+        await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
 
-    //        await _purchaseOrderItemRepository.InsertAsync(purchaseOrderItem);
+        // Save PurchaseOrderItems (Products)
+        foreach (var product in model.SelectedProducts)
+        {
+            var purchaseOrderItem = new PurchaseOrderItems
+            {
+                ProductId = product.ProductId,
+                UnitPrice = product.UnitPrice,
+                Quantity = product.Quantity,
+                TotalCost = product.TotalCost
+            };
 
-    //        // Update inventory: Increase stock quantity
-    //        var productEntity = await _productService.GetProductByIdAsync(product.ProductId);
-    //        if (productEntity != null)
-    //        {
-    //            productEntity.StockQuantity += product.Quantity;
-    //            await _productService.UpdateProductAsync(productEntity); // Assuming the service updates inventory
-    //        }
-    //    }
+            await _purchaseOrderItemRepository.InsertAsync(purchaseOrderItem);
 
-    //    // Optionally: Redirect to the list page with a success message
-    //    TempData["SuccessMessage"] = "Purchase Order has been saved successfully!";
-    //    return RedirectToAction("List");
-    //}
+            // Update inventory: Increase stock quantity
+            var productEntity = await _productService.GetProductByIdAsync(product.ProductId);
+            if (productEntity != null)
+            {
+                productEntity.StockQuantity += product.Quantity;
+                await _productService.UpdateProductAsync(productEntity); // Assuming the service updates inventory
+            }
+        }
+
+        // Optionally: Redirect to the list page with a success message
+        TempData["SuccessMessage"] = "Purchase Order has been saved successfully!";
+        return RedirectToAction("List");
+    }
 
 
-    // Fix for the CS1061 error in the AddProductPopup method
-    //public IActionResult AddProductPopup(int supplierId)
+    //Fix for the CS1061 error in the AddProductPopup method
+    //    public IActionResult AddProductPopup(int supplierId)
     //{
     //    // Await the asynchronous method to get the list of products
     //    var productsTask = _supplierServices.GetProductsBySupplierIdAsync(supplierId);
@@ -294,8 +298,9 @@ public class PurchaseOrderController : BasePluginController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> SupplierProductAddPopupList(AddSupplierProductSearchModel searchModel)
+    public virtual async Task<IActionResult> SupplierProductAddPopupList(AddSupplierProductSearchModel searchModel, int supplierId)
     {
+        searchModel.SupplierId = supplierId;
         //prepare model
         var model = await _purchaseOrdersModelFactory.PrepareAddSupplierProductListModelAsync(searchModel);
 
@@ -309,11 +314,11 @@ public class PurchaseOrderController : BasePluginController
         var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
         if (selectedProducts.Any())
         {
-            var existingSupplierProducts = await _purchaseOrdersService.GetSupplierProductsBySupplierIdAsync(model.PurchaseOrderNo, showHidden: true);
+            var existingSupplierProducts = await _purchaseOrdersService.GetSupplierProductsBySupplierIdAsync(model.PurchaseOrderNo.ToString(), showHidden: true);
             
             foreach (var product in selectedProducts)
             {
-                if (_purchaseOrdersService.FindSupplierProduct(existingSupplierProducts, model.PurchaseOrderNo, product.Id) != null)
+                if (_purchaseOrdersService.FindSupplierProduct(existingSupplierProducts, model.PurchaseOrderNo.ToString(), product.Id) != null)
                     continue;
 
                 await _purchaseOrdersService.InsertSupplierProductAsync(new PurchaseOrderItems
@@ -326,6 +331,19 @@ public class PurchaseOrderController : BasePluginController
         ViewBag.RefreshPage = true;
 
         return View(new AddSupplierProductSearchModel());
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> LoadSupplierProductsPartial(int supplierId)
+    {
+        var model = new AddSupplierProductSearchModel
+        {
+            SupplierId = supplierId
+        };
+
+        var searchModel = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(model);
+        return PartialView("SupplierProductAddPopup", searchModel);
     }
 
 

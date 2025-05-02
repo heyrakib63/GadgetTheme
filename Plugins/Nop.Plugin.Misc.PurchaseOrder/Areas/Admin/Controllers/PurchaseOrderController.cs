@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
@@ -16,8 +15,6 @@ using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-using Nop.Web.Framework.Models.DataTables;
-using Nop.Web.Areas.Admin.Models.Catalog;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Controllers;
 [AuthorizeAdmin]
@@ -85,7 +82,10 @@ public class PurchaseOrderController : BasePluginController
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var model = new CreatePurchaseOrderModel();
+        var model = new CreatePurchaseOrderModel
+        {
+            PurchaseOrderNo = Guid.NewGuid().ToString()
+        };
 
         // Load supplier dropdown
         var suppliers = await _supplierServices.GetAllSupplierAsync();
@@ -97,179 +97,56 @@ public class PurchaseOrderController : BasePluginController
             }).ToList();
 
         model.OrderDate = DateTime.UtcNow;
-        model.PurchaseOrderNo = Guid.NewGuid();
+        
 
         return View(model);
     }
+    //The post method for Insert and logic where should it go after Inserting the data.
+   [HttpPost]
+    public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model); // Return to the form if validation fails
+        }
 
-    // The post method for Insert and logic where should it go after Inserting the data.
-    //[HttpPost]
-    //public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
-    //{
-    //    if (!ModelState.IsValid)
-    //    {
-    //        return View(model); // Return to the form if validation fails
-    //    }
+        // Create new PurchaseOrder
+        var purchaseOrder = new PurchaseOrders
+        {
+            SupplierId = model.SupplierId,
+            CreatedOnUtc = DateTime.UtcNow,
+            TotalCost = model.TotalCost
+        };
 
-    //    // Create new PurchaseOrder
-    //    var purchaseOrder = new PurchaseOrders
-    //    {
-    //        SupplierId = model.SupplierId,
-    //        CreatedOnUtc = DateTime.UtcNow,
-    //        TotalCost = model.TotalCost
-    //    };
+        // Save the Purchase Order
+        await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
 
-    //    // Save the Purchase Order
-    //    await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
+        // Save PurchaseOrderItems (Products)
+        foreach (var product in model.SelectedProducts)
+        {
+            var purchaseOrderItem = new PurchaseOrderItems
+            {
+                ProductId = product.ProductId,
+                UnitPrice = product.UnitPrice,
+                Quantity = product.Quantity,
+                TotalCost = product.TotalCost
+            };
 
-    //    // Save PurchaseOrderItems (Products)
-    //    foreach (var product in model.SelectedProducts)
-    //    {
-    //        var purchaseOrderItem = new PurchaseOrderItems
-    //        {
-    //            ProductId = product.ProductId,
-    //            UnitPrice = product.UnitPrice,
-    //            Quantity = product.Quantity,
-    //            TotalCost = product.TotalCost
-    //        };
+            await _purchaseOrderItemRepository.InsertAsync(purchaseOrderItem);
 
-    //        await _purchaseOrderItemRepository.InsertAsync(purchaseOrderItem);
+            // Update inventory: Increase stock quantity
+            var productEntity = await _productService.GetProductByIdAsync(product.ProductId);
+            if (productEntity != null)
+            {
+                productEntity.StockQuantity += product.Quantity;
+                await _productService.UpdateProductAsync(productEntity); // Assuming the service updates inventory
+            }
+        }
 
-    //        // Update inventory: Increase stock quantity
-    //        var productEntity = await _productService.GetProductByIdAsync(product.ProductId);
-    //        if (productEntity != null)
-    //        {
-    //            productEntity.StockQuantity += product.Quantity;
-    //            await _productService.UpdateProductAsync(productEntity); // Assuming the service updates inventory
-    //        }
-    //    }
-
-    //    // Optionally: Redirect to the list page with a success message
-    //    TempData["SuccessMessage"] = "Purchase Order has been saved successfully!";
-    //    return RedirectToAction("List");
-    //}
-
-
-    // Fix for the CS1061 error in the AddProductPopup method
-    //public IActionResult AddProductPopup(int supplierId)
-    //{
-    //    // Await the asynchronous method to get the list of products
-    //    var productsTask = _supplierServices.GetProductsBySupplierIdAsync(supplierId);
-    //    var products = productsTask.Result.Select(p => new PurchaseOrderPopupProductModel
-    //    {
-    //        ProductId = p.Id,
-    //        ProductName = p.Name,
-    //        UnitPrice = p.Price // Or any other field that holds the unit price
-    //    }).ToList();
-
-    //    // Create and return the view with products
-    //    var model = new AddProductPopupModel
-    //    {
-    //        SupplierId = supplierId,
-    //        Products = products
-    //    };
-
-    //    return View(model);
-    //}
-
-    //[HttpPost]
-    //public IActionResult AddSelectedProducts(List<PurchaseOrderItemModel> products)
-    //{
-    //    // Save to TempData as JSON string
-    //    TempData["SelectedProducts"] = JsonConvert.SerializeObject(products);
-    //    TempData.Keep("SelectedProducts");
-
-    //    return Json(new { success = true });
-    //}
-
-
-    //[HttpPost]
-    //public IActionResult LoadSelectedProducts()
-    //{
-    //    try
-    //    {
-    //        var productJson = TempData.Peek("SelectedProducts") as string;
-
-    //        // Safety: always keep TempData alive to avoid wipe after peek
-    //        if (!string.IsNullOrEmpty(productJson))
-    //            TempData.Keep("SelectedProducts");
-
-    //        var products = string.IsNullOrEmpty(productJson)
-    //            ? new List<PurchaseOrderItemModel>()
-    //            : JsonConvert.DeserializeObject<List<PurchaseOrderItemModel>>(productJson);
-
-    //        return Json(new
-    //        {
-    //            data = products,
-    //            recordsTotal = products.Count,
-    //            recordsFiltered = products.Count
-    //        });
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        // Optional: Log the error
-    //        return Json(new
-    //        {
-    //            data = new List<object>(),
-    //            recordsTotal = 0,
-    //            recordsFiltered = 0
-    //        });
-    //    }
-    //}
-
-
-    //[HttpPost]
-    //public IActionResult DeleteProduct(int productId)
-    //{
-    //    var productJson = TempData["SelectedProducts"] as string;
-    //    if (string.IsNullOrEmpty(productJson))
-    //        return Json(new { success = false });
-
-    //    var products = JsonConvert.DeserializeObject<List<PurchaseOrderItemModel>>(productJson);
-
-    //    var productToRemove = products.FirstOrDefault(p => p.ProductId == productId);
-    //    if (productToRemove != null)
-    //    {
-    //        products.Remove(productToRemove);
-    //        TempData["SelectedProducts"] = JsonConvert.SerializeObject(products);
-    //        TempData.Keep("SelectedProducts");
-    //    }
-
-    //    return Json(new { success = true });
-    //}
-
-
-    //[HttpGet]
-    //public async Task<IActionResult> GetProductsBySupplier(int supplierId)
-    //{
-    //    var products = await _supplierServices.GetProductsBySupplierIdAsync(supplierId);
-
-    //    var result = new List<object>();
-
-    //    foreach (var product in products)
-    //    {
-    //        // Get first picture for this product
-    //        var pictureId = (await _productPictureRepository.Table
-    //            .Where(pp => pp.ProductId == product.Id)
-    //            .OrderBy(pp => pp.DisplayOrder)
-    //            .Select(pp => pp.PictureId)
-    //            .FirstOrDefaultAsync());
-
-    //        var pictureUrl = await _pictureService.GetPictureUrlAsync(pictureId, 75, true);
-
-    //        result.Add(new
-    //        {
-    //            id = product.Id,
-    //            name = product.Name,
-    //            sku = product.Sku,
-    //            pictureUrl = pictureUrl
-    //        });
-    //    }
-
-    //    return Json(result);
-    //}
-
-
+        // Optionally: Redirect to the list page with a success message
+        TempData["SuccessMessage"] = "Purchase Order has been saved successfully!";
+        return RedirectToAction("List");
+    }
 
     // For DataTable
     [HttpPost]
@@ -279,10 +156,6 @@ public class PurchaseOrderController : BasePluginController
 
         return Json(model);
     }
-
-
-
-
 
     // For Popup
     public virtual async Task<IActionResult> SupplierProductAddPopup(int supplierId)
@@ -294,8 +167,9 @@ public class PurchaseOrderController : BasePluginController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> SupplierProductAddPopupList(AddSupplierProductSearchModel searchModel)
+    public virtual async Task<IActionResult> SupplierProductAddPopupList(AddSupplierProductSearchModel searchModel, int supplierId)
     {
+        searchModel.SupplierId = supplierId;
         //prepare model
         var model = await _purchaseOrdersModelFactory.PrepareAddSupplierProductListModelAsync(searchModel);
 
@@ -309,11 +183,11 @@ public class PurchaseOrderController : BasePluginController
         var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
         if (selectedProducts.Any())
         {
-            var existingSupplierProducts = await _purchaseOrdersService.GetSupplierProductsBySupplierIdAsync(model.PurchaseOrderNo, showHidden: true);
+            var existingSupplierProducts = await _purchaseOrdersService.GetSupplierProductsBySupplierIdAsync(model.PurchaseOrderNo.ToString(), showHidden: true);
             
             foreach (var product in selectedProducts)
             {
-                if (_purchaseOrdersService.FindSupplierProduct(existingSupplierProducts, model.PurchaseOrderNo, product.Id) != null)
+                if (_purchaseOrdersService.FindSupplierProduct(existingSupplierProducts, model.PurchaseOrderNo.ToString(), product.Id) != null)
                     continue;
 
                 await _purchaseOrdersService.InsertSupplierProductAsync(new PurchaseOrderItems
@@ -322,10 +196,20 @@ public class PurchaseOrderController : BasePluginController
                 });
             }
         }
-
         ViewBag.RefreshPage = true;
-
         return View(new AddSupplierProductSearchModel());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> LoadSupplierProductsPartial(int supplierId)
+    {
+        var model = new AddSupplierProductSearchModel
+        {
+            SupplierId = supplierId
+        };
+
+        var searchModel = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(model);
+        return PartialView("SupplierProductAddPopup", searchModel);
     }
 
 
