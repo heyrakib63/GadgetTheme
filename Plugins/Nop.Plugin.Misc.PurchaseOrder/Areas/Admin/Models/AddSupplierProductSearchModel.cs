@@ -39,6 +39,7 @@ public partial record AddSupplierProductSearchModel : BaseSearchModel
     public int SearchProductTypeId { get; set; }
 
     public int SupplierId { get; set; }
+    public Guid PurchaseOrderNo { get; set; }
 
     public IList<SelectListItem> AvailableCategories { get; set; }
 

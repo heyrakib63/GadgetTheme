@@ -5,7 +5,7 @@ public partial record SupplierProductSearchModel : BaseSearchModel
 {
     #region Properties
 
-    public string PurchaseOrderNo { get; set; }
+    public Guid PurchaseOrderNo { get; set; }
 
     #endregion
 }

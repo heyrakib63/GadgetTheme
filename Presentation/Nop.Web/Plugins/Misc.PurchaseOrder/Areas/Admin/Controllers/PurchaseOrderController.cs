@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.InkML;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
@@ -82,9 +83,14 @@ public class PurchaseOrderController : BasePluginController
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        var generatedGuid = Guid.NewGuid();
         var model = new CreatePurchaseOrderModel
         {
-            PurchaseOrderNo = Guid.NewGuid().ToString()
+            PurchaseOrderNo = generatedGuid,
+            SupplierProductSearchModel = new SupplierProductSearchModel
+            {
+                PurchaseOrderNo = generatedGuid
+            }
         };
 
         // Load supplier dropdown
@@ -115,7 +121,8 @@ public class PurchaseOrderController : BasePluginController
         {
             SupplierId = model.SupplierId,
             CreatedOnUtc = DateTime.UtcNow,
-            TotalCost = model.TotalCost
+            TotalCost = model.TotalCost,
+            PurchaseOrderNo = model.PurchaseOrderNo
         };
 
         // Save the Purchase Order
@@ -158,10 +165,15 @@ public class PurchaseOrderController : BasePluginController
     }
 
     // For Popup
-    public virtual async Task<IActionResult> SupplierProductAddPopup(int supplierId)
+    public virtual async Task<IActionResult> SupplierProductAddPopup(int supplierId, Guid purchaseOrderNo)
     {
         //prepare model
-        var model = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(new AddSupplierProductSearchModel());
+        var searchmodel = new AddSupplierProductSearchModel
+        {
+            SupplierId = supplierId,
+            PurchaseOrderNo = purchaseOrderNo,
+        };
+        var model = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(searchmodel);
 
         return View(model);
     }
@@ -178,39 +190,53 @@ public class PurchaseOrderController : BasePluginController
 
     [HttpPost]
     [FormValueRequired("save")]
-    public virtual async Task<IActionResult> SupplierProductAddPopup(AddSupplierProductModel model)
+    public virtual async Task<IActionResult> SupplierProductAddPopup(AddSupplierProductModel model, string formId, string btnId)
     {
+        if (model.PurchaseOrderNo == Guid.Empty)
+            throw new Exception("PurchaseOrderNo is empty in POST!");
+
+        if (model.SelectedProductIds == null || !model.SelectedProductIds.Any())
+            throw new Exception("No products selected!");
+
         var selectedProducts = await _productService.GetProductsByIdsAsync(model.SelectedProductIds.ToArray());
         if (selectedProducts.Any())
         {
-            var existingSupplierProducts = await _purchaseOrdersService.GetSupplierProductsBySupplierIdAsync(model.PurchaseOrderNo.ToString(), showHidden: true);
+            var existingSupplierProducts = await _purchaseOrdersService.GetSupplierProductsBySupplierIdAsync(model.PurchaseOrderNo, showHidden: true);
             
             foreach (var product in selectedProducts)
             {
-                if (_purchaseOrdersService.FindSupplierProduct(existingSupplierProducts, model.PurchaseOrderNo.ToString(), product.Id) != null)
+                if (_purchaseOrdersService.FindSupplierProduct(existingSupplierProducts, model.PurchaseOrderNo, product.Id) != null)
                     continue;
 
                 await _purchaseOrdersService.InsertSupplierProductAsync(new PurchaseOrderItems
                 {
                     ProductId = product.Id,
+                    PurchaseOrderNo = model.PurchaseOrderNo,
                 });
             }
         }
-        ViewBag.RefreshPage = true;
-        return View(new AddSupplierProductSearchModel());
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> LoadSupplierProductsPartial(int supplierId)
-    {
-        var model = new AddSupplierProductSearchModel
+        var searchModel = new AddSupplierProductSearchModel
         {
-            SupplierId = supplierId
+            PurchaseOrderNo = model.PurchaseOrderNo,
+            SupplierId = model.SupplierId
         };
-
-        var searchModel = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(model);
-        return PartialView("SupplierProductAddPopup", searchModel);
+        ViewBag.RefreshPage = true;
+        ViewBag.FormId = formId;
+        ViewBag.BtnId = btnId;
+        return View(searchModel);
     }
+
+    //[HttpPost]
+    //public async Task<IActionResult> LoadSupplierProductsPartial(int supplierId)
+    //{
+    //    var model = new AddSupplierProductSearchModel
+    //    {
+    //        SupplierId = supplierId
+    //    };
+
+    //    var searchModel = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(model);
+    //    return PartialView("SupplierProductAddPopup", searchModel);
+    //}
 
 
 }

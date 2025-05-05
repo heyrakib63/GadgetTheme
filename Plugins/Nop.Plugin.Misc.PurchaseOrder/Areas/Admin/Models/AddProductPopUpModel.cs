@@ -4,6 +4,7 @@ namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
 public record AddProductPopupModel : BaseNopModel
 {
     public int SupplierId { get; set; }
+    public Guid PurchaseOrderNo { get; set; }
     public IList<PurchaseOrderPopupProductModel> Products { get; set; } = new List<PurchaseOrderPopupProductModel>();
 }
 public record PurchaseOrderPopupProductModel : BaseNopModel

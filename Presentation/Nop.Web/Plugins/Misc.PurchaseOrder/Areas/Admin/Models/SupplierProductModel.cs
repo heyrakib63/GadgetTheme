@@ -12,7 +12,11 @@ public partial record SupplierProductModel : BaseNopEntityModel
     public string Product2Name { get; set; }
 
     [NopResourceDisplayName("Admin.Catalog.Products.RelatedProducts.Fields.DisplayOrder")]
-    public int DisplayOrder { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal TotalCost { get; set; }
+    public string PictureUrl { get; set; }
+
 
     #endregion
 }

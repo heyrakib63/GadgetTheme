@@ -11,8 +11,14 @@
 @if (ViewBag.RefreshPage == true)
 {
 	<script>
-		try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+		try {
+			window.opener.document.forms['@ViewBag.FormId']['@ViewBag.BtnId'].click();
+		}
 		catch (e){}
+		window.close();
+		try {
+		  window.opener.refreshSupplierProductsGrid();
+		} catch(e){}
 		window.close();
 	</script>
 }
@@ -20,9 +26,12 @@ else
 {
 	<form asp-controller="PurchaseOrder" asp-action="SupplierProductAddPopup"
 			asp-route-SupplierId="@Context.Request.Query["SupplierId"]"
-		  asp-route-productId="@Context.Request.Query["productId"]"
+			asp-route-PurchaseOrderNo="@Context.Request.Query["PurchaseOrderNo"]"
 		  asp-route-btnId="@Context.Request.Query["btnId"]"
 		  asp-route-formId="@Context.Request.Query["formId"]">
+		<input type="hidden" name="formId" value="@Context.Request.Query["formId"]" />
+		<input type="hidden" name="btnId" value="@Context.Request.Query["btnId"]" />
+		<input type="hidden" name="PurchaseOrderNo" value="@Model.PurchaseOrderNo" />
 		<div class="content-header clearfix">
 			<h1 class="float-left">
 				@T("Admin.Catalog.Products.RelatedProducts.AddNew")
@@ -120,3 +129,7 @@ else
 		</section>
 	</form>
 }
+
+<script>
+	console.log("DEBUG - PurchaseOrderNo = '@Model.PurchaseOrderNo'");
+</script>

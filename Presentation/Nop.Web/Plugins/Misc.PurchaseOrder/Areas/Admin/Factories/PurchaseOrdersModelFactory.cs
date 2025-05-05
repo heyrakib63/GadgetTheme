@@ -7,6 +7,7 @@ using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
+using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Web.Areas.Admin.Factories;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
@@ -26,6 +27,7 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
     private readonly IBaseAdminModelFactory _baseAdminModelFactory;
     private readonly IWorkContext _workContext;
     private readonly IUrlRecordService _urlRecordService;
+    private readonly IPictureService _pictureService;
     //private readonly IStaticCacheManager _staticCacheManager;
     public PurchaseOrdersModelFactory(
         ILocalizationService localizationService,
@@ -36,7 +38,8 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         IProductService productService,
         IBaseAdminModelFactory baseAdminModelFactory,
         IWorkContext workContext,
-        IUrlRecordService urlRecordService
+        IUrlRecordService urlRecordService,
+        IPictureService pictureService
         )
     {
         _localizationService = localizationService;
@@ -48,6 +51,7 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         _baseAdminModelFactory = baseAdminModelFactory;
         _workContext = workContext;
         _urlRecordService = urlRecordService;
+        _pictureService = pictureService;
         //_staticCacheManager = staticCacheManager;
     }
     // Return lists of Suppliers aka grid
@@ -125,7 +129,7 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         return searchModel;
     }
     // Added DataTabel Codes:
-    public virtual async Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, string purchaseOrderNo)
+    public virtual async Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, Guid purchaseOrderNo)
     {
         ArgumentNullException.ThrowIfNull(searchModel);
 
@@ -133,22 +137,32 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         var supplierProducts = (await _purchaseOrdersService
             .GetSupplierProductsBySupplierIdAsync(purchaseOrderNo: purchaseOrderNo, showHidden: true)).ToPagedList(searchModel);
 
+        System.Diagnostics.Debug.WriteLine($"Found {supplierProducts.Count} supplier products for PO: {purchaseOrderNo}");
+
         //prepare grid model
         var model = await new SupplierProductListModel().PrepareToGridAsync(searchModel, supplierProducts, () =>
         {
             return supplierProducts.SelectAwait(async supplierProduct =>
             {
+                
                 //fill in model values from the entity
                 var supplierProductModel = new SupplierProductModel
                 {
                     Id = supplierProduct.Id,
                     ProductId2 = supplierProduct.ProductId,
                     Product2Name = (await _productService.GetProductByIdAsync(supplierProduct.ProductId))?.Name,
+                    UnitPrice = supplierProduct.UnitPrice,
+                    Quantity = supplierProduct.Quantity,
+                    TotalCost = supplierProduct.TotalCost
                 };
 
                 //fill in additional values (not existing in the entity)
                 supplierProductModel.Product2Name = (await _productService.GetProductByIdAsync(supplierProduct.ProductId))?.Name;
+                var product = await _productService.GetProductByIdAsync(supplierProduct.ProductId);
+                var defaultProductPicture = (await _pictureService.GetPicturesByProductIdAsync(product.Id, 1)).FirstOrDefault();
+                (supplierProductModel.PictureUrl, _) = await _pictureService.GetPictureUrlAsync(defaultProductPicture, 75);
 
+  
                 return supplierProductModel;
             });
         });

@@ -15,6 +15,7 @@ public partial record AddSupplierProductModel : BaseNopModel
 
     public int ProductId { get; set; }
     public Guid PurchaseOrderNo { get; set; }
+    public int SupplierId { get; set; }
 
     public IList<int> SelectedProductIds { get; set; }
 

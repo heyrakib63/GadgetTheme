@@ -8,7 +8,7 @@ public interface IPurchaseOrdersModelFactory
     Task<PurchaseOrdersModel> PreparePurchaseOrdersModelAsync(PurchaseOrdersModel model, PurchaseOrders purchaseOrders, bool excludeProperties = false);
     Task<PurchaseOrdersSearchModel> PreparePurchaseOrdersSearchModelAsync(PurchaseOrdersSearchModel searchModel);
     Task<PurchaseOrdersListModel> PreparePurchaseOrdersListModelAsync(PurchaseOrdersSearchModel searchModel);
-    Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, string purchaseOrderNo);
+    Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, Guid purchaseOrderNo);
     Task<AddSupplierProductSearchModel> PrepareAddSupplierProductSearchModelAsync(AddSupplierProductSearchModel searchModel);
     Task<AddSupplierProductListModel> PrepareAddSupplierProductListModelAsync(AddSupplierProductSearchModel searchModel);
 }
