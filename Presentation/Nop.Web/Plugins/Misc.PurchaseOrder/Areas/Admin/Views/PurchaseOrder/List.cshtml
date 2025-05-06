@@ -8,6 +8,11 @@
 	const string hideSearchBlockAttributeName = "PurchaseOrderPage.HideSearchBlock";
 	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
 }
+<style>
+	.select2-container--default .select2-selection--single {
+		height: 35px !important;
+	}
+</style>
 <div class="content-header clearfix">
 	<h1 class="float-left">
 		Purchase Orders
@@ -140,5 +145,12 @@
 
 		return name + '<br/><a href="mailto:' + email + '">' + email + '</a>';
 	}
+	$(document).ready(function () {
+		$('#SupplierId').select2({
+			placeholder: "Select a Supplier",
+			allowClear: false,
+			width: 'resolve' // or '100%' to fill the column
+		});
+	});
 </script>
 

@@ -5,6 +5,12 @@
 	NopHtml.SetActiveMenuItemSystemName("PurchaseOrders");
 }
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+	.select2-container--default .select2-selection--single {
+		height: 35px !important;
+	}
+</style>
 <div class="content-header clearfix">
 	<h1 class="float-left">
 		Create Purchase Order
@@ -113,6 +119,7 @@
 		</form>
 	</div>
 </section>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 	$(document).ready(function () {
 		$('#btnAddProduct').click(function () {
@@ -152,7 +159,7 @@
 		});
 	}
 
-		$(document).ready(function () {
+	$(document).ready(function () {
 		const purchaseOrderNo = $('#PurchaseOrderNo').val();
 
 		$('#supplierproducts-grid').on('updated.inlineedit', function (e, row, data, response) {
@@ -168,6 +175,28 @@
 					}
 				});
 			}
+		});
+	});
+	$(document).ready(function () {
+		$('#SupplierId').select2({
+			placeholder: "Select a Supplier",
+			allowClear: false,
+			width: 'resolve' // or '100%' to fill the column
+		});
+	});
+	$(document).ready(function () {
+		$('#btnConfirmSupplier').click(function () {
+			var selectedSupplier = $('#SupplierId').val();
+
+			if (!selectedSupplier) {
+				alert("Please select a supplier before confirming.");
+				return;
+			}
+
+			// Disable the select and the button
+			$('#SupplierId').prop('disabled', true);
+			$('#SupplierId').trigger('change.select2'); // refresh select2 UI
+			$(this).prop('disabled', true);
 		});
 	});
 

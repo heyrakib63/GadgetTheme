@@ -108,7 +108,11 @@ public class PurchaseOrderController : BasePluginController
                 Text = s.SupplierName,
                 Value = s.Id.ToString()
             }).ToList();
-
+        model.AvailableSuppliers.Insert(0, new SelectListItem
+        {
+            Text = "Select a Supplier",
+            Value = "0"
+        });
         model.OrderDate = DateTime.UtcNow;
 
         var supplierProducts = await _purchaseOrdersService.GetTotalOfAllProductsPriceByPurchaseOrderNoAsync(model.PurchaseOrderNo);
