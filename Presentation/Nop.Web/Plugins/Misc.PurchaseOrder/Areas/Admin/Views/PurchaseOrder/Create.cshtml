@@ -194,11 +194,11 @@
 			}
 
 			// Disable the select and the button
-			$('#SupplierId').prop('disabled', true);
-			$('#SupplierId').trigger('change.select2'); // refresh select2 UI
-			$(this).prop('disabled', true);
+				var supplierId = $('#SupplierId').val();
+				$('#create-form').append('<input type="hidden" name="SupplierId" value="' + supplierId + '" />');
+				$('#SupplierId').prop('disabled', true);
 		});
-	});
+	}); 
 
 
 </script>
