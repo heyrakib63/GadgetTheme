@@ -1,7 +1,7 @@
 ﻿using Nop.Core;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Domains;
 
-namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
+namespace Nop.Plugin.Misc.PurchaseOrder.Services;
 
 public interface IPurchaseOrdersService
 {
@@ -13,4 +13,8 @@ public interface IPurchaseOrdersService
     Task<IList<PurchaseOrderItems>> GetSupplierProductsBySupplierIdAsync(Guid purchaseOrderNo, bool showHidden = false);
     PurchaseOrderItems FindSupplierProduct(IList<PurchaseOrderItems> source, Guid purchaseOrderNo, int productId);
     Task InsertSupplierProductAsync(PurchaseOrderItems supplierProduct);
+    Task<PurchaseOrderItems> GetSupplierProductByIdAsync(int supplierProductId);
+    Task UpdateSupplierProductAsync(PurchaseOrderItems supplierProduct);
+    Task DeleteSupplierProductAsync(PurchaseOrderItems supplierProduct);
+    Task<IList<PurchaseOrderItems>> GetTotalOfAllProductsPriceByPurchaseOrderNoAsync(Guid purchaseOrderNo);
 }

@@ -2,12 +2,12 @@
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Data;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services.Caching;
+using Nop.Plugin.Misc.PurchaseOrder.Services.Caching;
+using Nop.Plugin.Misc.PurchaseOrder.Domains;
 using Nop.Services.Catalog;
 using Nop.Services.Html;
 
-namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
+namespace Nop.Plugin.Misc.PurchaseOrder.Services;
 
 public class PurchaseOrdersService : IPurchaseOrdersService
 {
@@ -86,5 +86,27 @@ public class PurchaseOrdersService : IPurchaseOrdersService
     {
         await _productSupplierRepository.InsertAsync(supplierProduct);
     }
+
+    public virtual async Task<PurchaseOrderItems> GetSupplierProductByIdAsync(int supplierProductId)
+    {
+        return await _productSupplierRepository.GetByIdAsync(supplierProductId);
+    }
+
+    public virtual async Task DeleteSupplierProductAsync(PurchaseOrderItems supplierProduct)
+    {
+        await _productSupplierRepository.DeleteAsync(supplierProduct);
+    }
+
+    public virtual async Task UpdateSupplierProductAsync(PurchaseOrderItems supplierProduct)
+    {
+        await _productSupplierRepository.UpdateAsync(supplierProduct);
+    }
+    public async Task<IList<PurchaseOrderItems>> GetTotalOfAllProductsPriceByPurchaseOrderNoAsync(Guid purchaseOrderNo)
+    {
+        return await _productSupplierRepository.Table
+            .Where(p => p.PurchaseOrderNo == purchaseOrderNo)
+            .ToListAsync();
+    }
+
 }
 

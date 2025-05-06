@@ -1,5 +1,5 @@
-﻿using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
+﻿using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
+using Nop.Plugin.Misc.PurchaseOrder.Domains;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
 

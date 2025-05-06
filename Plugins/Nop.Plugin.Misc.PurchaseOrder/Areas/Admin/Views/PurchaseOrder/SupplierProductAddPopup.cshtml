@@ -56,7 +56,9 @@ else
 												<nop-editor asp-for="SearchProductName" />
 											</div>
 										</div>
-										<div class="col-sm-6" @(Model.AvailableCategories.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
+									</div>
+									<div class="col-sm-6" @(Model.AvailableCategories.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
+										<div class="form-group row">
 											<div class="col-sm-5">
 												<nop-label asp-for="SearchCategoryId" />
 											</div>

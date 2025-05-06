@@ -14,7 +14,9 @@ public partial record SupplierProductModel : BaseNopEntityModel
     [NopResourceDisplayName("Admin.Catalog.Products.RelatedProducts.Fields.DisplayOrder")]
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+    public string UnitPriceFormatted { get; set; }
     public decimal TotalCost { get; set; }
+    public string TotalCostFormatted { get; set; }
     public string PictureUrl { get; set; }
 
 

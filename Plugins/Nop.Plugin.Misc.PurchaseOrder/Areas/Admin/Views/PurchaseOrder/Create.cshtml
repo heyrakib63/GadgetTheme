@@ -20,7 +20,6 @@
 	<div class="container-fluid">
 		<form asp-action="Create" method="post" id="create-form">
 			<input type="hidden" id="PurchaseOrderNo" name="PurchaseOrderNo" value="@Model.PurchaseOrderNo.ToString()" />
-			<p> @Model.PurchaseOrderNo</p>
 			<div class="card card-default">
 				<div class="card-body">
 					<div class="form-horizontal">
@@ -42,12 +41,11 @@
 			</div>
 			
 			<div class="card-body">
-				<p>
-					Selected Products
-				</p>
-				<p><strong>Debug - PurchaseOrderNo:</strong> @Model.SupplierProductSearchModel.PurchaseOrderNo</p>
 				<div class="card card-default">
 					<div class="card-body">
+						<p>
+							Selected Products
+						</p>
 
 						@await Html.PartialAsync("Table", new DataTablesModel
 						{
@@ -65,53 +63,46 @@
 							Width = "100",
 							Render = new RenderPicture(width: 100)
 						},
-
 						new ColumnProperty(nameof(SupplierProductModel.Product2Name))
 						{
-						Title = "Name",
-						Width = "100"
-
+							Title = "Name",
+							Width = "100"
 						},
-						new ColumnProperty(nameof(SupplierProductModel.UnitPrice))
+						new ColumnProperty(nameof(SupplierProductModel.UnitPriceFormatted))
 						{
-						Title = "Unit Price",
-						Width = "85",
-						ClassName = NopColumnClassDefaults.CenterAll,
-						Editable = true,
-						EditType = EditType.Number
+							Title = "Unit Price",
+							Width = "85"
 						},
 						new ColumnProperty(nameof(SupplierProductModel.Quantity))
 						{
-						Title = "Quantity",
-						Width = "85",
-						ClassName = NopColumnClassDefaults.CenterAll,
-						Editable = true,
-						EditType = EditType.Number
+							Title = "Quantity",
+							Width = "85",
+							ClassName = NopColumnClassDefaults.CenterAll,
+							Editable = true,
+							EditType = EditType.Number
 						},
-						new ColumnProperty(nameof(SupplierProductModel.TotalCost))
+						new ColumnProperty(nameof(SupplierProductModel.TotalCostFormatted))
 						{
-						Title = "Total Cost",
-						Width = "85",
-						ClassName = NopColumnClassDefaults.CenterAll,
-						Editable = true,
-						EditType = EditType.Number
+							Title = "Total Cost",
+							Width = "85",
+							ClassName = NopColumnClassDefaults.CenterAll
 						},
 						new ColumnProperty(nameof(SupplierProductModel.Id))
 						{
-						Title = T("Admin.Common.Edit").Text,
-						Width = "70",
-						ClassName =  NopColumnClassDefaults.Button,
-						Render = new RenderButtonsInlineEdit()
+							Title = T("Admin.Common.Edit").Text,
+							Width = "70",
+							ClassName =  NopColumnClassDefaults.Button,
+							Render = new RenderButtonsInlineEdit()
 						},
 						new ColumnProperty(nameof(SupplierProductModel.Id))
 						{
-						Title = T("Admin.Common.Delete").Text,
-						Width = "70",
-						Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
-						ClassName = NopColumnClassDefaults.Button
+							Title = T("Admin.Common.Delete").Text,
+							Width = "70",
+							Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+							ClassName = NopColumnClassDefaults.Button
 						}
 						}
-					});
+					})
 					</div>
 
 					<div class="card-footer">
@@ -144,5 +135,42 @@
 			table.ajax.reload(null, false); // false = don’t reset paging
 		  }
 	}
+	$(document).ready(function () {
+		$('#supplierproducts-grid').on('updated.inlineedit', function (e, row, data, response) {
+			if (response && response.success) {
+				const rowElement = row.node();
+				const $cell = $('td', rowElement).eq(4); // Index 4 = TotalCostFormatted column
+				$cell.text(response.totalCostFormatted);
+			}
+		});
+	});
+	function refreshOrderTotal(purchaseOrderNo) {
+		$.get('/Admin/PurchaseOrder/GetOrderTotal', { purchaseOrderNo: purchaseOrderNo }, function (response) {
+			if (response.success) {
+				$('#orderTotalDisplay').text(response.orderTotalFormatted);
+			}
+		});
+	}
+
+		$(document).ready(function () {
+		const purchaseOrderNo = $('#PurchaseOrderNo').val();
+
+		$('#supplierproducts-grid').on('updated.inlineedit', function (e, row, data, response) {
+			if (response && response.success) {
+				const rowElement = row.node();
+				const $cell = $('td', rowElement).eq(4); // Index 4 = TotalCostFormatted column
+				$cell.text(response.totalCostFormatted);
+
+				// Refresh the overall order total
+				$.get('/Admin/PurchaseOrder/GetOrderTotal', { purchaseOrderNo: purchaseOrderNo }, function (res) {
+					if (res.success) {
+						$('#orderTotalDisplay').text(res.orderTotalFormatted);
+					}
+				});
+			}
+		});
+	});
+
+
 </script>
 

@@ -1,6 +1,6 @@
 ﻿using Nop.Core.Caching;
 
-namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services.Caching;
+namespace Nop.Plugin.Misc.PurchaseOrder.Services.Caching;
 public static partial class NopPurchaseOrdersDefaults
 {
     public static CacheKey SupplierProductsCacheKey => new("Nop.supplierproduct.byproduct.{0}-{1}", SupplierProductsPrefix);

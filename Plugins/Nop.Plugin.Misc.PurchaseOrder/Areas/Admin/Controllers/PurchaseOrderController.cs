@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
@@ -6,15 +7,17 @@ using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Data;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
+using Nop.Plugin.Misc.PurchaseOrder.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Services.Messages;
+using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Framework.Controllers;
+using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Controllers;
@@ -35,6 +38,7 @@ public class PurchaseOrderController : BasePluginController
     private readonly IPictureService _pictureService;
     private readonly IProductService _productService;
     private readonly IRepository<ProductPicture> _productPictureRepository;
+    private readonly IPriceFormatter _priceFormatter;
 
     public PurchaseOrderController(
         IPurchaseOrdersService purchaseOrdersService,
@@ -49,7 +53,8 @@ public class PurchaseOrderController : BasePluginController
         IRepository<PurchaseOrderItems> purchaseOrderItemRepository,
         IPictureService pictureService,
         IProductService productService,
-        IRepository<ProductPicture> productPictureRepository
+        IRepository<ProductPicture> productPictureRepository,
+        IPriceFormatter priceFormatter
         )
     {
         _purchaseOrdersService = purchaseOrdersService;
@@ -65,6 +70,7 @@ public class PurchaseOrderController : BasePluginController
         _pictureService = pictureService;
         _productService = productService;
         _productPictureRepository = productPictureRepository;
+        _priceFormatter = priceFormatter;
     }
     // Logics for List view
     public async Task<IActionResult> List()
@@ -79,6 +85,7 @@ public class PurchaseOrderController : BasePluginController
         var model = await _purchaseOrdersModelFactory.PreparePurchaseOrdersListModelAsync(searchModel);
         return Json(model);
     }
+
     // To generate the create view.
     [HttpGet]
     public async Task<IActionResult> Create()
@@ -103,18 +110,28 @@ public class PurchaseOrderController : BasePluginController
             }).ToList();
 
         model.OrderDate = DateTime.UtcNow;
-        
+
+        var supplierProducts = await _purchaseOrdersService.GetTotalOfAllProductsPriceByPurchaseOrderNoAsync(model.PurchaseOrderNo);
+        model.TotalCost = supplierProducts.Sum(p => p.TotalCost);
+        model.OrderTotalFormatted = await _priceFormatter.FormatPriceAsync(model.TotalCost);
 
         return View(model);
     }
+
     //The post method for Insert and logic where should it go after Inserting the data.
-   [HttpPost]
+    [HttpPost]
     public async Task<IActionResult> Create(CreatePurchaseOrderModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model); // Return to the form if validation fails
         }
+
+        // Await the task to get the result before calling Sum
+        var selectedProducts = await _purchaseOrdersService.GetTotalOfAllProductsPriceByPurchaseOrderNoAsync(model.PurchaseOrderNo);
+
+        model.TotalCost = selectedProducts.Sum(sp => sp.TotalCost);
+        model.OrderTotalFormatted = await _priceFormatter.FormatPriceAsync(model.TotalCost);
 
         // Create new PurchaseOrder
         var purchaseOrder = new PurchaseOrders
@@ -128,30 +145,6 @@ public class PurchaseOrderController : BasePluginController
         // Save the Purchase Order
         await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
 
-        // Save PurchaseOrderItems (Products)
-        foreach (var product in model.SelectedProducts)
-        {
-            var purchaseOrderItem = new PurchaseOrderItems
-            {
-                ProductId = product.ProductId,
-                UnitPrice = product.UnitPrice,
-                Quantity = product.Quantity,
-                TotalCost = product.TotalCost
-            };
-
-            await _purchaseOrderItemRepository.InsertAsync(purchaseOrderItem);
-
-            // Update inventory: Increase stock quantity
-            var productEntity = await _productService.GetProductByIdAsync(product.ProductId);
-            if (productEntity != null)
-            {
-                productEntity.StockQuantity += product.Quantity;
-                await _productService.UpdateProductAsync(productEntity); // Assuming the service updates inventory
-            }
-        }
-
-        // Optionally: Redirect to the list page with a success message
-        TempData["SuccessMessage"] = "Purchase Order has been saved successfully!";
         return RedirectToAction("List");
     }
 
@@ -212,6 +205,9 @@ public class PurchaseOrderController : BasePluginController
                 {
                     ProductId = product.Id,
                     PurchaseOrderNo = model.PurchaseOrderNo,
+                    UnitPrice = product?.Price ?? 0,
+                    Quantity = 0,
+                    TotalCost = 0
                 });
             }
         }
@@ -226,17 +222,38 @@ public class PurchaseOrderController : BasePluginController
         return View(searchModel);
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> LoadSupplierProductsPartial(int supplierId)
-    //{
-    //    var model = new AddSupplierProductSearchModel
-    //    {
-    //        SupplierId = supplierId
-    //    };
+    [HttpPost]
+    public virtual async Task<IActionResult> SupplierProductUpdate(SupplierProductModel model, Guid purchaseOrderNo)
+    {
+        var supplierProduct = await _purchaseOrdersService.GetSupplierProductByIdAsync(model.Id)
+            ?? throw new ArgumentException("No suppliers product found with the specified id");
 
-    //    var searchModel = await _purchaseOrdersModelFactory.PrepareAddSupplierProductSearchModelAsync(model);
-    //    return PartialView("SupplierProductAddPopup", searchModel);
-    //}
+        supplierProduct.Quantity = model.Quantity;
+        supplierProduct.TotalCost = (supplierProduct.Quantity * supplierProduct.UnitPrice);
+        await _purchaseOrdersService.UpdateSupplierProductAsync(supplierProduct);
+
+        var updatedTotalCost = await _priceFormatter.FormatPriceAsync(supplierProduct.TotalCost);
+        return Json(new
+        {
+            success = true,
+            id = model.Id,
+            totalCostFormatted = updatedTotalCost
+        });
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> SupplierProductDelete(int id)
+    {
+        var supplierProduct = await _purchaseOrdersService.GetSupplierProductByIdAsync(id)
+            ?? throw new ArgumentException("No suppliers product found with the specified id");
+
+        var productId = supplierProduct.ProductId;
+
+        await _purchaseOrdersService.DeleteSupplierProductAsync(supplierProduct);
+
+        return new NullJsonResult();
+    }
+
 
 
 }

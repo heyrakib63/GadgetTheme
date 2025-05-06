@@ -16,6 +16,7 @@ public class CreatePurchaseOrderModel
     public Guid PurchaseOrderNo { get; set; }
     public IList<PurchaseOrderItemModel> SelectedProducts { get; set; } = new List<PurchaseOrderItemModel>();
     public decimal TotalCost { get; set; }
+    public string OrderTotalFormatted { get; set; }
     public SupplierProductSearchModel SupplierProductSearchModel { get; set; }
 }
 public class PurchaseOrderItemModel

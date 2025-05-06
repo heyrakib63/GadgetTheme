@@ -2,9 +2,9 @@
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
-using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Services;
+using Nop.Plugin.Misc.PurchaseOrder.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Media;
@@ -128,6 +128,8 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         searchModel.SetGridPageSize();
         return searchModel;
     }
+
+
     // Added DataTabel Codes:
     public virtual async Task<SupplierProductListModel> PrepareSupplierProductListModelAsync(SupplierProductSearchModel searchModel, Guid purchaseOrderNo)
     {
@@ -142,27 +144,33 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         //prepare grid model
         var model = await new SupplierProductListModel().PrepareToGridAsync(searchModel, supplierProducts, () =>
         {
+            
             return supplierProducts.SelectAwait(async supplierProduct =>
             {
-                
+                var product = await _productService.GetProductByIdAsync(supplierProduct.ProductId);
+                decimal unitCost = product?.Price ?? 0;
+                decimal totalCost = (unitCost * supplierProduct.Quantity);
                 //fill in model values from the entity
                 var supplierProductModel = new SupplierProductModel
                 {
                     Id = supplierProduct.Id,
                     ProductId2 = supplierProduct.ProductId,
                     Product2Name = (await _productService.GetProductByIdAsync(supplierProduct.ProductId))?.Name,
-                    UnitPrice = supplierProduct.UnitPrice,
+                    UnitPrice = unitCost,
+                    UnitPriceFormatted = product != null ? await _priceFormatter.FormatPriceAsync(unitCost) : "",
                     Quantity = supplierProduct.Quantity,
-                    TotalCost = supplierProduct.TotalCost
+                    TotalCost = totalCost,
+                    TotalCostFormatted = product != null ? await _priceFormatter.FormatPriceAsync(totalCost) : "",
                 };
 
                 //fill in additional values (not existing in the entity)
                 supplierProductModel.Product2Name = (await _productService.GetProductByIdAsync(supplierProduct.ProductId))?.Name;
-                var product = await _productService.GetProductByIdAsync(supplierProduct.ProductId);
+               
                 var defaultProductPicture = (await _pictureService.GetPicturesByProductIdAsync(product.Id, 1)).FirstOrDefault();
                 (supplierProductModel.PictureUrl, _) = await _pictureService.GetPictureUrlAsync(defaultProductPicture, 75);
+         
 
-  
+
                 return supplierProductModel;
             });
         });

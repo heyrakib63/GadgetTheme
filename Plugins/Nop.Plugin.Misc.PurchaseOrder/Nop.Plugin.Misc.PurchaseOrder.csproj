@@ -49,10 +49,10 @@
     <Compile Update="Areas\Admin\Models\PurchaseOrdersSearchModel.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Areas\Admin\Domains\PurchaseOrderItems.cs">
+    <Compile Update="Domains\PurchaseOrderItems.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Areas\Admin\Domains\PurchaseOrders.cs">
+    <Compile Update="Domains\PurchaseOrders.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Areas\Admin\Models\SupplierProductListModel.cs">
@@ -64,10 +64,10 @@
     <Compile Update="Areas\Admin\Models\SupplierProductSearchModel.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Areas\Admin\Services\IPurchaseOrdersService.cs">
+    <Compile Update="Services\IPurchaseOrdersService.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Areas\Admin\Services\PurchaseOrdersService.cs">
+    <Compile Update="Services\PurchaseOrdersService.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Infrastructure\NopStartup.cs">

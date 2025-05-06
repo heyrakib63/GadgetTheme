@@ -1,6 +1,6 @@
 ﻿using Nop.Core;
 
-namespace Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Domains;
+namespace Nop.Plugin.Misc.PurchaseOrder.Domains;
 public class PurchaseOrders : BaseEntity
 {
     public Guid PurchaseOrderNo { get; set; }
