@@ -37,7 +37,25 @@
     <Compile Update="Areas\Admin\Models\AddProductPopUpModel.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Update="Areas\Admin\Models\AddSupplierProductListModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\AddSupplierProductModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\AddSupplierProductSearchModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Areas\Admin\Models\CreatePurchaseOrderModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\PurchaseOrderItemsListModel.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\PurchaseOrderItemsModels.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Areas\Admin\Models\PurchaseOrderItemsSearchModel.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Areas\Admin\Models\PurchaseOrdersListModel.cs">
@@ -96,6 +114,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Areas\Admin\Views\PurchaseOrder\SupplierProductAddPopup.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Areas\Admin\Views\PurchaseOrder\Edit.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Areas\Admin\Views\_ViewImports.cshtml">

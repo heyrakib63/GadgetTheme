@@ -20,6 +20,7 @@ public record PurchaseOrdersModel : BaseNopEntityModel, ILocalizedModel<Purchase
     public decimal TotalCost { get; set; }
     public string TotalCostFormatted { get; set; }
     public IList<PurchaseOrdersLocalizedModel> Locales { get; set; }
+    public Guid PurchaseOrderNo { get; set; }
 }
 //This class is used to localize the PurchaseOrdersModel
 public partial record PurchaseOrdersLocalizedModel : ILocalizedLocaleModel

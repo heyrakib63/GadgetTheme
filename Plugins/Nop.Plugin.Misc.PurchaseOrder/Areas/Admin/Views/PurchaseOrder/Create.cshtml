@@ -62,51 +62,51 @@
 							Length = Model.SupplierProductSearchModel.PageSize,
 							LengthMenu = Model.SupplierProductSearchModel.AvailablePageSizes,
 							ColumnCollection = new List<ColumnProperty>
-						{
-						new ColumnProperty(nameof(SupplierProductModel.PictureUrl))
-						{
-							Title = T("Admin.Catalog.Products.Fields.PictureThumbnailUrl").Text,
-							Width = "100",
-							Render = new RenderPicture(width: 100)
-						},
-						new ColumnProperty(nameof(SupplierProductModel.Product2Name))
-						{
-							Title = "Name",
-							Width = "100"
-						},
-						new ColumnProperty(nameof(SupplierProductModel.UnitPriceFormatted))
-						{
-							Title = "Unit Price",
-							Width = "85"
-						},
-						new ColumnProperty(nameof(SupplierProductModel.Quantity))
-						{
-							Title = "Quantity",
-							Width = "85",
-							ClassName = NopColumnClassDefaults.CenterAll,
-							Editable = true,
-							EditType = EditType.Number
-						},
-						new ColumnProperty(nameof(SupplierProductModel.TotalCostFormatted))
-						{
-							Title = "Total Cost",
-							Width = "85",
-							ClassName = NopColumnClassDefaults.CenterAll
-						},
-						new ColumnProperty(nameof(SupplierProductModel.Id))
-						{
-							Title = T("Admin.Common.Edit").Text,
-							Width = "70",
-							ClassName =  NopColumnClassDefaults.Button,
-							Render = new RenderButtonsInlineEdit()
-						},
-						new ColumnProperty(nameof(SupplierProductModel.Id))
-						{
-							Title = T("Admin.Common.Delete").Text,
-							Width = "70",
-							Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
-							ClassName = NopColumnClassDefaults.Button
-						}
+							{
+								new ColumnProperty(nameof(SupplierProductModel.PictureUrl))
+								{
+									Title = T("Admin.Catalog.Products.Fields.PictureThumbnailUrl").Text,
+									Width = "100",
+									Render = new RenderPicture(width: 100)
+								},
+								new ColumnProperty(nameof(SupplierProductModel.Product2Name))
+								{
+									Title = "Name",
+									Width = "100"
+								},
+								new ColumnProperty(nameof(SupplierProductModel.UnitPriceFormatted))
+								{
+									Title = "Unit Price",
+									Width = "85"
+								},
+								new ColumnProperty(nameof(SupplierProductModel.Quantity))
+								{
+									Title = "Quantity",
+									Width = "85",
+									ClassName = NopColumnClassDefaults.CenterAll,
+									Editable = true,
+									EditType = EditType.Number
+								},
+								new ColumnProperty(nameof(SupplierProductModel.TotalCostFormatted))
+								{
+									Title = "Total Cost",
+									Width = "85",
+									ClassName = NopColumnClassDefaults.CenterAll
+								},
+								new ColumnProperty(nameof(SupplierProductModel.Id))
+								{
+									Title = T("Admin.Common.Edit").Text,
+									Width = "70",
+									ClassName =  NopColumnClassDefaults.Button,
+									Render = new RenderButtonsInlineEdit()
+								},
+								new ColumnProperty(nameof(SupplierProductModel.Id))
+								{
+									Title = T("Admin.Common.Delete").Text,
+									Width = "70",
+									Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+									ClassName = NopColumnClassDefaults.Button
+								}
 						}
 					})
 					</div>

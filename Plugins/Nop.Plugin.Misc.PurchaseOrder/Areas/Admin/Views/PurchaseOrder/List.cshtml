@@ -83,6 +83,7 @@
 				</div>
 				<div class="card card-default">
 					<div class="card-body">
+						
 						@await Html.PartialAsync("Table", new DataTablesModel
 						 {
 							 Name = "purchaseOrders-grid",
@@ -125,7 +126,7 @@
 								Title = "View",
 								Width = "50",
 								ClassName =  NopColumnClassDefaults.Button,
-								Render = new RenderButtonView(new DataUrl("View"))
+								Render = new RenderButtonView(new DataUrl("Edit", "PurchaseOrder"))
 								}
 								}
 						 })

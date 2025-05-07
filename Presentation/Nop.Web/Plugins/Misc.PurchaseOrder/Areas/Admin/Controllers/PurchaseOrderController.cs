@@ -258,6 +258,20 @@ public class PurchaseOrderController : BasePluginController
         return new NullJsonResult();
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var order = await _purchaseOrdersService.GetPurchaseOrdersByIdAsync(id);
+        Guid purchaseOrderNo = (Guid)(order?.PurchaseOrderNo);
+        var searchModel = new PurchaseOrderItemsSearchModel();
+        var model = await _purchaseOrdersModelFactory.PreparePurchaseOrderItemsSearchModelAsync(searchModel,purchaseOrderNo);
+        return View(model);
+    }
 
-
+    [HttpPost]
+    public async Task<IActionResult> Edit(PurchaseOrderItemsSearchModel searchModel)
+    {
+        var model = await _purchaseOrdersModelFactory.PreparePurchaseOrderItemsListModelAsync(searchModel);
+        return Json(model);
+    }
 }

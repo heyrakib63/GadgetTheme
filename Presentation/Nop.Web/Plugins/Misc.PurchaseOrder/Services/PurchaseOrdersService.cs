@@ -56,6 +56,20 @@ public class PurchaseOrdersService : IPurchaseOrdersService
         query = query.OrderBy(e => e.SupplierId);
         return await query.ToPagedListAsync(pageIndex, pageSize);
     }
+    public virtual async Task<IPagedList<PurchaseOrderItems>> SearchPurchaseOrderItemsAsync(
+        Guid purchaseOrderNo,
+        int pageIndex = 0,
+        int pageSize = int.MaxValue
+        )
+    {
+        var query = from e in _productSupplierRepository.Table
+                    select e;
+        if (purchaseOrderNo!=Guid.Empty)
+            query = query.Where(e => e.PurchaseOrderNo == purchaseOrderNo);
+        query = query.OrderBy(e => e.PurchaseOrderNo);
+        return await query.ToPagedListAsync(pageIndex, pageSize);
+    }
+
     public virtual async Task<PurchaseOrders> GetPurchaseOrdersByIdAsync(int purchaseOrderId)
     {
         return await _purchaseOrdersRepository.GetByIdAsync(purchaseOrderId);
@@ -106,6 +120,10 @@ public class PurchaseOrdersService : IPurchaseOrdersService
         return await _productSupplierRepository.Table
             .Where(p => p.PurchaseOrderNo == purchaseOrderNo)
             .ToListAsync();
+    }
+    public async Task<Product> GetProductByIdAsync(int productId)
+    {
+        return await _productRepository.GetByIdAsync(productId);
     }
 
 }

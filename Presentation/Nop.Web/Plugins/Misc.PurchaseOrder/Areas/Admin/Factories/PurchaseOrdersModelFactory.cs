@@ -95,7 +95,8 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
                     SupplierEmail = supplier?.SupplierEmail,
                     CreatedOnUtc = purchaseOrder.CreatedOnUtc,
                     TotalCost = purchaseOrder.TotalCost,
-                    TotalCostFormatted = await _priceFormatter.FormatPriceAsync(purchaseOrder.TotalCost)
+                    TotalCostFormatted = await _priceFormatter.FormatPriceAsync(purchaseOrder.TotalCost),
+                    PurchaseOrderNo = purchaseOrder.PurchaseOrderNo
                 };
             }
         }
@@ -242,6 +243,68 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         });
 
         return model;
+    }
+
+
+
+
+
+
+    // For the OrderItems View Model
+    public async Task<PurchaseOrderItemsListModel> PreparePurchaseOrderItemsListModelAsync(PurchaseOrderItemsSearchModel searchModel)
+    {
+        if (searchModel == null)
+            throw new ArgumentNullException(nameof(searchModel));
+
+        var purchaseOrderItems = await _purchaseOrdersService.SearchPurchaseOrderItemsAsync(
+            searchModel.PurchaseOrderNo,
+            pageIndex: searchModel.Page - 1,
+            pageSize: searchModel.PageSize);
+        //prepare grid model
+        var count = purchaseOrderItems.Count;
+        var model = await new PurchaseOrderItemsListModel().PrepareToGridAsync(searchModel, purchaseOrderItems, () =>
+        {
+            return purchaseOrderItems.SelectAwait(async purchaseOrderItem =>
+            {
+                return await PreparePurchaseOrderItemsModelAsync(null, purchaseOrderItem, true);
+            });
+        });
+        return model;
+    }
+    // Returns a single supplier model
+    public async Task<PurchaseOrderItemsModel> PreparePurchaseOrderItemsModelAsync(PurchaseOrderItemsModel model, PurchaseOrderItems purchaseOrderItem, bool excludeProperties = false)
+    {
+        if (purchaseOrderItem != null)
+            // Till this
+        {
+            if (model == null)
+            {
+                
+                //fill in model values from the entity
+                model = new PurchaseOrderItemsModel()
+                {
+                    Quantity = purchaseOrderItem.Quantity,
+                    UnitPrice = purchaseOrderItem.UnitPrice,
+                    UnitPriceFormatted = await _priceFormatter.FormatPriceAsync(purchaseOrderItem.UnitPrice),
+                    TotalCostFormatted = await _priceFormatter.FormatPriceAsync(purchaseOrderItem.TotalCost)
+                };
+                model.ProductName = (await _productService.GetProductByIdAsync(purchaseOrderItem.ProductId))?.Name;
+
+                var defaultProductPicture = (await _pictureService.GetPicturesByProductIdAsync(purchaseOrderItem.ProductId, 1)).FirstOrDefault();
+                (model.PictureUrl, _) = await _pictureService.GetPictureUrlAsync(defaultProductPicture, 75);
+            }
+        }
+        await Task.CompletedTask;
+        return model;
+    }
+
+    // For the search model. 
+    public async Task<PurchaseOrderItemsSearchModel> PreparePurchaseOrderItemsSearchModelAsync(PurchaseOrderItemsSearchModel searchModel, Guid purchaseOrderNo)
+    {
+        searchModel.PurchaseOrderNo = purchaseOrderNo;
+        await Task.CompletedTask;
+        searchModel.SetGridPageSize();
+        return searchModel;
     }
 }
 
