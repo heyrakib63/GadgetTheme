@@ -299,9 +299,8 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
     }
 
     // For the search model. 
-    public async Task<PurchaseOrderItemsSearchModel> PreparePurchaseOrderItemsSearchModelAsync(PurchaseOrderItemsSearchModel searchModel, Guid purchaseOrderNo)
+    public async Task<PurchaseOrderItemsSearchModel> PreparePurchaseOrderItemsSearchModelAsync(PurchaseOrderItemsSearchModel searchModel)
     {
-        searchModel.PurchaseOrderNo = purchaseOrderNo;
         await Task.CompletedTask;
         searchModel.SetGridPageSize();
         return searchModel;

@@ -1,21 +1,20 @@
-﻿using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.InkML;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Events;
 using Nop.Data;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Factories;
 using Nop.Plugin.Misc.PurchaseOrder.Areas.Admin.Models;
 using Nop.Plugin.Misc.PurchaseOrder.Domains;
+using Nop.Plugin.Misc.PurchaseOrder.Events;
 using Nop.Plugin.Misc.PurchaseOrder.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Services.Messages;
-using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
@@ -39,6 +38,7 @@ public class PurchaseOrderController : BasePluginController
     private readonly IProductService _productService;
     private readonly IRepository<ProductPicture> _productPictureRepository;
     private readonly IPriceFormatter _priceFormatter;
+    private readonly IEventPublisher _eventPublisher;
 
     public PurchaseOrderController(
         IPurchaseOrdersService purchaseOrdersService,
@@ -54,7 +54,8 @@ public class PurchaseOrderController : BasePluginController
         IPictureService pictureService,
         IProductService productService,
         IRepository<ProductPicture> productPictureRepository,
-        IPriceFormatter priceFormatter
+        IPriceFormatter priceFormatter,
+        IEventPublisher eventPublisher
         )
     {
         _purchaseOrdersService = purchaseOrdersService;
@@ -71,6 +72,7 @@ public class PurchaseOrderController : BasePluginController
         _productService = productService;
         _productPictureRepository = productPictureRepository;
         _priceFormatter = priceFormatter;
+        _eventPublisher = eventPublisher;
     }
     // Logics for List view
     public async Task<IActionResult> List()
@@ -148,6 +150,7 @@ public class PurchaseOrderController : BasePluginController
 
         // Save the Purchase Order
         await _purchaseOrdersService.InsertPurchaseOrdersAsync(purchaseOrder);
+        await _eventPublisher.PublishAsync(new PurchaseOrderCreatedEvent(model.PurchaseOrderNo));
 
         return RedirectToAction("List");
     }
@@ -263,8 +266,11 @@ public class PurchaseOrderController : BasePluginController
     {
         var order = await _purchaseOrdersService.GetPurchaseOrdersByIdAsync(id);
         Guid purchaseOrderNo = (Guid)(order?.PurchaseOrderNo);
-        var searchModel = new PurchaseOrderItemsSearchModel();
-        var model = await _purchaseOrdersModelFactory.PreparePurchaseOrderItemsSearchModelAsync(searchModel,purchaseOrderNo);
+        var searchModel = new PurchaseOrderItemsSearchModel
+        {
+            PurchaseOrderNo = purchaseOrderNo
+        };
+        var model = await _purchaseOrdersModelFactory.PreparePurchaseOrderItemsSearchModelAsync(searchModel);
         return View(model);
     }
 

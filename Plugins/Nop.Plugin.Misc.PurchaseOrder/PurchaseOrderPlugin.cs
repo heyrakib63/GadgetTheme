@@ -40,6 +40,7 @@ public class PurchaseOrderPlugin : BasePlugin
         return new Dictionary<string, string>
         {
             ["Admin.PurchaseOrder"] = "Purchase Order",
+            ["Admin.PurchaseOrders.List.Supplier"] = "Suppliers",
             ["Admin.PurchaseOrder.AddNew"] = "Add new Orders",
             ["Admin.PurchaseOrder.BackToList"] = "Back to Order List",
             ["Admin.PurchaseOrder.Fields.Name"] = "Name",
