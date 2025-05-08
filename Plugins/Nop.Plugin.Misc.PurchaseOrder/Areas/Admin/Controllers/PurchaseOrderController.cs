@@ -275,8 +275,11 @@ public class PurchaseOrderController : BasePluginController
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(PurchaseOrderItemsSearchModel searchModel)
+    public async Task<IActionResult> Edit(int id, PurchaseOrderItemsSearchModel searchModel)
     {
+        var order = await _purchaseOrdersService.GetPurchaseOrdersByIdAsync(id);
+        Guid purchaseOrderNo = (Guid)(order?.PurchaseOrderNo);
+        searchModel.PurchaseOrderNo = purchaseOrderNo;
         var model = await _purchaseOrdersModelFactory.PreparePurchaseOrderItemsListModelAsync(searchModel);
         return Json(model);
     }

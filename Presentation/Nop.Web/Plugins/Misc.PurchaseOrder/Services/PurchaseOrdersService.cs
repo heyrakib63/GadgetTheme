@@ -64,7 +64,7 @@ public class PurchaseOrdersService : IPurchaseOrdersService
     {
         var query = from e in _productSupplierRepository.Table
                     select e;
-        //if (purchaseOrderNo!=Guid.Empty)
+        if (purchaseOrderNo!=Guid.Empty)
             query = query.Where(e => e.PurchaseOrderNo == purchaseOrderNo);
         query = query.OrderBy(e => e.PurchaseOrderNo);
         return await query.ToPagedListAsync(pageIndex, pageSize);
