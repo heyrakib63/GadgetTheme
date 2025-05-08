@@ -123,7 +123,7 @@ public class PurchaseOrdersModelFactory : IPurchaseOrdersModelFactory
         // Optionally add a "All Suppliers" choice
         searchModel.AvailableSuppliers.Insert(0, new SelectListItem
         {
-            Text = "All Suppliers",
+            Text = "Select a Supplier",
             Value = "0"
         });
         searchModel.SetGridPageSize();
