@@ -1,0 +1,157 @@
+﻿@model PurchaseOrdersSearchModel
+@{
+	ViewBag.Title = "Purchase Order List";
+	Layout = "_AdminLayout";
+	NopHtml.SetActiveMenuItemSystemName("PurchaseOrders");
+}
+@{
+	const string hideSearchBlockAttributeName = "PurchaseOrderPage.HideSearchBlock";
+	var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+<style>
+	.select2-container--default .select2-selection--single {
+		height: 35px !important;
+	}
+</style>
+<div class="content-header clearfix">
+	<h1 class="float-left">
+		Purchase Orders
+	</h1>
+	<div class="float-right">
+		<a asp-action="Create" class="btn btn-primary">
+			<i class="fas fa-square-plus"></i>
+			AddNew
+		</a>
+	</div>
+</div>
+<section class="content">
+	<div class="container-fluid">
+		<div class="form-horizontal">
+			<div class="cards-group">
+				<div class="card card-default card-search">
+					<div class="card-body">
+						<div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+							<div class="search-text">Search</div>
+							<div class="icon-search"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></div>
+							<div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+						</div>
+						<div class="search-body @(hideSearchBlock ? "closed" : "")">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="CreatedOnFrom" />
+										</div>
+										<div class="col-md-8">
+											<nop-editor asp-for="CreatedOnFrom" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="SupplierId" />
+										</div>
+										<div class="col-md-8">
+											<nop-select asp-for="SupplierId" asp-items="@Model.AvailableSuppliers"/>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group row">
+										<div class="col-md-4">
+											<nop-label asp-for="CreatedOnTo" />
+										</div>
+										<div class="col-md-8">
+											<nop-editor asp-for="CreatedOnTo" />
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="text-center col-12">
+									<button type="button" id="search-purchaseOrders" class="btn btn-primary btn-search">
+										<i class="fas fa-magnifying-glass"></i>
+										Search
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card card-default">
+					<div class="card-body">
+						
+						@await Html.PartialAsync("Table", new DataTablesModel
+						 {
+							 Name = "purchaseOrders-grid",
+							 SearchButtonId = "search-purchaseOrders",
+							 UrlRead = new DataUrl("List", "PurchaseOrder", null),
+							 Length = Model.PageSize,
+							 LengthMenu = Model.AvailablePageSizes,
+							 Filters = new List<FilterParameter>
+								{
+								new FilterParameter(nameof(Model.SupplierId)),
+								new FilterParameter(nameof(Model.CreatedOnFrom)),
+								new FilterParameter(nameof(Model.CreatedOnTo))
+								},
+							 ColumnCollection = new List<ColumnProperty>
+								{
+								new ColumnProperty(nameof(PurchaseOrdersModel.Id))
+								{
+								Title = "Order #",
+								Width = "40"
+								},
+								new ColumnProperty(nameof(PurchaseOrdersModel.SupplierName))
+								{
+								Title = "Supplier",
+								Width = "260",
+								Render = new RenderCustom("renderSupplierWithEmail")
+								},
+								new ColumnProperty(nameof(PurchaseOrdersModel.CreatedOnUtc))
+								{
+								Title = "Created On",
+								Width = "70",
+								Render = new RenderDate()
+								},
+								new ColumnProperty(nameof(PurchaseOrdersModel.TotalCostFormatted))
+								{
+								Title = "Order Total",
+								Width = "50",
+								},
+								new ColumnProperty(nameof(PurchaseOrdersModel.Id))
+								{
+								Title = "View",
+								Width = "50",
+								ClassName =  NopColumnClassDefaults.Button,
+								Render = new RenderButtonView(new DataUrl("Edit", "PurchaseOrder"))
+								}
+								}
+						 })
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<script>
+	function renderSupplierWithEmail(data, type, row, meta) {
+		var name = data;
+		var email = row.SupplierEmail;
+
+		if (!name) return '';
+		if (!email) return name;
+
+		return name + '<br/><a href="mailto:' + email + '">' + email + '</a>';
+	}
+	$(document).ready(function () {
+		$('#SupplierId').select2({
+			placeholder: "Select a Supplier",
+			allowClear: false,
+			width: 'resolve' // or '100%' to fill the column
+		});
+	});
+</script>
+

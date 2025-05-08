@@ -14,7 +14,7 @@
 
 		@if (Model.ProductId > 0)
 		{
-			@await Html.PartialAsync("_CreateOrUpdate.ProductSupplier", Model)
+			@await Html.PartialAsync("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/_CreateOrUpdate.ProductSupplier.cshtml", Model)
 		}
 		else
 		{
