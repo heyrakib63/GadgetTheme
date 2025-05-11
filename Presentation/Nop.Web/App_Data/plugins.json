@@ -114,6 +114,10 @@
     {
       "SystemName": "Misc.PurchaseOrder",
       "Version": "1.10"
+    },
+    {
+      "SystemName": "Misc.ProductDescriptionExt",
+      "Version": "1.00"
     }
   ],
   "PluginNamesToUninstall": [],

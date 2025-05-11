@@ -21,7 +21,7 @@
 				<div class="card card-default">
 					<div class="card-body">
 						<input type="hidden" id="PurchaseOrderNo" name="PurchaseOrderNo" value="@Model.PurchaseOrderNo" />
-						<p>@Model.PurchaseOrderNo</p>
+						
 						@await Html.PartialAsync("Table", new DataTablesModel
 						{
 						Name = "purchaseOrderItems-grid",
