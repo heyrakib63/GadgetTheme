@@ -1,0 +1,66 @@
+﻿@model ProductDescriptionViewModel
+@addTagHelper *, Nop.Web
+@{
+	const string hideDescriptionBlockAttributeName = "ProductPage.HideDescriptionBlock";
+	var customer = await workContext.GetCurrentCustomerAsync();
+	var hideDescriptionBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideDescriptionBlockAttributeName);
+}
+
+<div asp-validation-summary="All"></div>
+
+<nop-card asp-name="description-extension-info" asp-icon="fa-solid fa-file" asp-title="Add some extra description" asp-hide-block-attribute-name="@hideDescriptionBlockAttributeName" asp-hide="@hideDescriptionBlock" asp-advanced="false">
+
+	<div class="card-body">
+		@if (Model.ProductId > 0){
+			<div class="form-group row">
+				<div class="col-md-3">
+					<nop-label asp-for="Description" />
+			 	</div>
+			 	<div class="col-md-9">
+					<nop-editor asp-for="Description" asp-template="RichEditor" />
+					<button id="btnSaveDescription" type="button" class="btn btn-primary">
+			 			Save Description
+			 		</button>
+			 	</div>
+			</div>
+		}else 
+		 { 
+			<div class="card card-default">
+		 		<div class="card-body">
+		 			@T("Admin.Catalog.Products.ProductDescription.SaveBeforeEdit")
+		 		</div>
+			</div>
+		}
+	</div>
+</nop-card>
+<script>
+	$(document).ready(function () {
+		$('#btnSaveDescription').on('click', function () {
+			
+			var description = tinymce.get('Description') ? tinymce.get('Description').getContent() : $('#Description').val();
+			var productId = @Model.ProductId;
+
+			if (!description) {
+				alert("Please enter some description");
+				return;
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "@Url.Action("SaveDescription", "ProductDescription", new { area = "Admin" })",
+				data: { productId: productId, description: description },
+				success: function (response) {
+					if (response.success) {
+						alert("Description successfully saved!");
+					} else {
+						alert("Saving failed.");
+					}
+				},
+				error: function () {
+					alert("An error occurred while saving.");
+				}
+			});
+		});
+	});
+</script>
+

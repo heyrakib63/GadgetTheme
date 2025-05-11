@@ -1,0 +1,10 @@
+﻿@{
+	var description = ViewData["ExtraDescription"] as string;
+}
+
+<div class="extra-product-description mt-4">
+	<h4>Additional Information</h4>
+	<div class="extra-product-description-body">
+		@Html.Raw(description)
+	</div>
+</div>

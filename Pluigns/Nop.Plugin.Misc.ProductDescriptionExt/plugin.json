@@ -1,0 +1,13 @@
+﻿{
+  "Group": "Misc",
+  "FriendlyName": "Product Description Extension",
+  "SystemName": "Misc.ProductDescriptionExt",
+  "Version": "1.00",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "Rakib Hossain",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.ProductDescriptionExt.dll",
+  "Description": "This is a plugin that allows the admin to add new content inside the product details view"
+}

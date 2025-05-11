@@ -110,6 +110,17 @@
     {
       "SystemName": "GadgetTheme.SupplierManagement",
       "Version": "1.12"
+<<<<<<< HEAD
+=======
+    },
+    {
+      "SystemName": "Misc.PurchaseOrder",
+      "Version": "1.10"
+    },
+    {
+      "SystemName": "Misc.ProductDescriptionExt",
+      "Version": "1.00"
+>>>>>>> e07bb81 (Created the Extra Description Plugin.)
     }
   ],
   "PluginNamesToUninstall": [],
