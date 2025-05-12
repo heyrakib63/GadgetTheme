@@ -1,0 +1,60 @@
+﻿@model ProductSupplierViewModel
+@addTagHelper *, Nop.Web
+@{
+	const string hideSupplierBlockAttributeName = "ProductPage.HideSupplierBlock";
+	var customer = await workContext.GetCurrentCustomerAsync();
+	var hideSupplierBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideSupplierBlockAttributeName);
+}
+
+<div asp-validation-summary="All"></div>
+
+<nop-card asp-name="supplier-info" asp-icon="fa-solid fa-truck-field" asp-title="Link a Supplier" asp-hide-block-attribute-name="@hideSupplierBlockAttributeName" asp-hide="@hideSupplierBlock" asp-advanced="false">
+
+	<div class="card-body">
+
+		@if (Model.ProductId > 0)
+		{
+			@await Html.PartialAsync("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/_CreateOrUpdate.ProductSupplier.cshtml", Model)
+		}
+		else
+		{
+			<div class="card card-default">
+				<div class="card-body">
+					@T("Admin.Catalog.Products.ProductSupplier.SaveBeforeEdit")
+				</div>
+			</div>
+		}
+	</div>
+
+</nop-card>
+
+
+<script>
+		$(document).ready(function () {
+		$('#btnSaveSupplier').on('click', function () {
+			var supplierId = $('#SupplierDropdown').val();
+			var productId = @Model.ProductId;
+
+			if (!supplierId) {
+				alert("Please select a supplier first.");
+				return;
+			}
+
+			$.ajax({
+				type: "POST",
+				url: "@Url.Action("MapSupplier", "ProductSupplier", new { area = "Admin" })",
+				data: { productId: productId, supplierId: supplierId },
+				success: function (response) {
+					if (response.success) {
+						alert("Supplier successfully saved!");
+					} else {
+						alert("Saving failed.");
+					}
+				},
+				error: function () {
+					alert("An error occurred while saving.");
+				}
+			});
+		});
+	});
+</script>

@@ -1,4 +1,5 @@
 ﻿using Nop.Core;
+using Nop.Core.Domain.Catalog;
 using Nop.Data;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
@@ -6,11 +7,20 @@ using Nop.Services.Html;
 public class SupplierService : ISupplierServices
 {
     private readonly IRepository<Supplier> _supplierRepository;
+    private readonly IRepository<ProductSupplierMapping> _productSupplierMappingRepository;
+    private readonly IRepository<Product> _productRepository;
     protected readonly IHtmlFormatter _htmlFormatter;
-    public SupplierService(IRepository<Supplier> supplierRepository, IHtmlFormatter htmlFormatter)
+    public SupplierService(
+        IRepository<Supplier> supplierRepository,
+        IHtmlFormatter htmlFormatter,
+        IRepository<ProductSupplierMapping> productSupplierMappingRepository,
+        IRepository<Product> productRepository
+        )
     {
         _supplierRepository = supplierRepository;
         _htmlFormatter = htmlFormatter;
+        _productSupplierMappingRepository = productSupplierMappingRepository;
+        _productRepository = productRepository;
     }
     public virtual async Task<IList<Supplier>> GetAllSupplierAsync()
     {
@@ -45,6 +55,19 @@ public class SupplierService : ISupplierServices
     {
         await _supplierRepository.DeleteAsync(supplier);
     }
+    public async Task<IList<Product>> GetProductsBySupplierIdAsync(int supplierId)
+    {
+        if (supplierId <= 0)
+            return new List<Product>();
+
+        var query = from mapping in _productSupplierMappingRepository.Table
+                    join product in _productRepository.Table on mapping.ProductId equals product.Id
+                    where mapping.SupplierId == supplierId
+                    select product;
+
+        return await query.ToListAsync();
+    }
+
 }
 
 

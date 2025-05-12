@@ -4,12 +4,12 @@ using Nop.Core.Caching;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-using Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
 
 
 namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
@@ -64,7 +64,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
         public async Task<IActionResult> List()
         {
             var searchModel = await _supplierModelFactory.PrepareSupplierSearchModelAsync(new SupplierSearchModel());
-            return View("List", searchModel);
+            return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/List.cshtml", searchModel);
         }
         // Logics for posting list of Suppliers
         [HttpPost]
@@ -77,7 +77,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var model = await _supplierModelFactory.PrepareSupplierModelAsync(new SupplierModel(), null);
-            return View("Create", model);
+            return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/Create.cshtml", model);
         }
         // The post method for Insert and logic where should it go after Inserting the data.
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -100,7 +100,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = supplier.Id }) : RedirectToAction("List");
             }
             model = await _supplierModelFactory.PrepareSupplierModelAsync(model, null);
-            return View("Create", model);
+            return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/Create.cshtml", model);
         }
         // The edit view.
         public virtual async Task<IActionResult> Edit(int id)
@@ -113,7 +113,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
             }
             //prepare model
             var model = await _supplierModelFactory.PrepareSupplierModelAsync(null, supplier);
-            return View("Edit", model);
+            return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/Edit.cshtml", model);
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -141,7 +141,7 @@ namespace Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Controllers
             await UpdateLocalesAsync(supplier, model);
             //prepare model
             model = await _supplierModelFactory.PrepareSupplierModelAsync(model, supplier, true);
-            return View("Edit", model);
+            return View("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/Edit.cshtml", model);
         }
         // Delete a single supplier.
         [HttpPost]

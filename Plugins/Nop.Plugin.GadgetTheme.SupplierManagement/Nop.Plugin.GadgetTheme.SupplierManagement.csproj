@@ -86,7 +86,7 @@
     <None Update="Areas\Admin\Views\Components\SupplierDropdown.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Areas\Admin\Views\_CreateOrUpdate.ProductSupplier.cshtml">
+    <None Update="Areas\Admin\Views\Supplier\_CreateOrUpdate.ProductSupplier.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Areas\Admin\Views\Supplier\Create.cshtml">

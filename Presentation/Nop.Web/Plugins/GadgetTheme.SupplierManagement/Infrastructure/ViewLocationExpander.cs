@@ -11,20 +11,21 @@ public class ViewLocationExpander : IViewLocationExpander
     }    
     public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
     {
-        if (context.AreaName == "Admin")
+        if (context.AreaName == "admin")
         {
             viewLocations = new string[]
             {
                 $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{0}}.cshtml",
-                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{1}}/{{0}}.cshtml"
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{1}}/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/{{0}}.cshtml"
             }.Concat(viewLocations);
         }
         else
         {
             viewLocations = new string[]
             {
-                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{0}}.cshtml",
-                $"/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/{{1}}/{{0}}.cshtml"
+                $"/Plugins/GadgetTheme.SupplierManagement/Views/{{0}}.cshtml",
+                $"/Plugins/GadgetTheme.SupplierManagement/Views/{{1}}/{{0}}.cshtml"
             }.Concat(viewLocations);
         }
         return viewLocations;

@@ -28,6 +28,6 @@
 			</span>
 		</div>
 	</div>
-	@await Html.PartialAsync("_CreateOrUpdate", Model)
+	@await Html.PartialAsync("~/Plugins/GadgetTheme.SupplierManagement/Areas/Admin/Views/Supplier/_CreateOrUpdate.cshtml", Model)
 </form>
 <nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="supplier-delete"/>
