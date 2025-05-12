@@ -18,6 +18,11 @@ public class ProductDescriptionService: IProductDescriptionService
     {
         var mapping = new ProductDescription
         {
+            ProductId = productId
+        };
+        await _repository.DeleteAsync(mapping);
+        mapping = new ProductDescription
+        {
             ProductId = productId,
             Description = description
         };

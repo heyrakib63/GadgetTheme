@@ -12,7 +12,6 @@ namespace Nop.Plugin.Misc.ProductDescriptionExt.Components
         {
             _productDescriptionService = productDescriptionService;
         }
-
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
         {
             if (additionalData is not ProductDetailsModel model || model.Id == 0)

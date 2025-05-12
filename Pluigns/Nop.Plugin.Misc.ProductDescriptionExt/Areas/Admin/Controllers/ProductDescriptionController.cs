@@ -22,11 +22,6 @@ public class ProductDescriptionController : BasePluginController
     [HttpPost]
     public async Task<IActionResult> SaveDescription(int productId, string description)
     {
-        //if (string.IsNullOrWhiteSpace(model.Description))
-        //{
-        //    ModelState.AddModelError(nameof(model.Description), "Description cannot be empty");
-        //    return View(model); // or Redirect back
-        //}
         await _mappingService.InsertMappingAsync(productId, description);
         return Json(new { success = true });
     }
