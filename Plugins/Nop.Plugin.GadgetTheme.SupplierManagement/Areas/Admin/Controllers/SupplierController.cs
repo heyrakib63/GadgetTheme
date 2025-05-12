@@ -4,6 +4,7 @@ using Nop.Core.Caching;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Factories;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Areas.Admin.Model;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Domains;
+using Nop.Plugin.GadgetTheme.SupplierManagement.Infrastructure;
 using Nop.Plugin.GadgetTheme.SupplierManagement.Services;
 using Nop.Services.Localization;
 using Nop.Services.Messages;

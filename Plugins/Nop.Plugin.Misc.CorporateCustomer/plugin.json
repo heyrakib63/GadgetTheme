@@ -1,0 +1,13 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Corporate Customer Management",
+  "SystemName": "Misc.CorporateCustomer",
+  "Version": "1.0",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "Your Name",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.CorporateCustomer.dll",
+  "Description": "This plugin allows managing corporate customers and their specific pricing"
+} 
