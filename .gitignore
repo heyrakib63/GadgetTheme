@@ -361,3 +361,24 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Presentation/Nop.Web/wwwroot/images/thumbs/0000025_apple-macbook-pro_550.jpeg
+/Presentation/Nop.Web/wwwroot/images/thumbs/0000025_apple-macbook-pro_100.jpeg
+/Presentation/Nop.Web/wwwroot/images/thumbs/0000025_apple-macbook-pro.jpeg
+/Presentation/Nop.Web/wwwroot/images/thumbs/0000024_apple-macbook-pro_550.jpeg
+/Presentation/Nop.Web/wwwroot/images/thumbs/0000024_apple-macbook-pro_100.jpeg
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Plugin.Widget.ProductDescriptionExt.dll
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.deps.json
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.runtimeconfig.dev.json
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.runtimeconfig.json
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.staticwebassets.endpoints.json
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.staticwebassets.runtime.json
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/runtimes
+/Presentation/Nop.Web/wwwroot/images/thumbs
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Core.dll
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Data.dll
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Services.dll
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.dll
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.exe
+/Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/Nop.Web.Framework.dll
+/Presentation/Nop.Web/Nop.Web.csproj
+/NopCommerce.sln
