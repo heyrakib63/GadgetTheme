@@ -15,9 +15,9 @@ public class ProductDescriptionExtController : BasePluginController
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateOrUpdateDescription(int productId, string description)
+    public async Task<IActionResult> CreateDescription(int productId, string description)
     {
-        await _productDescriptionService.InsertOrUpdateDescriptionAsync(productId, description);
+        await _productDescriptionService.InsertDescriptionAsync(productId, description);
         return Json(new { success = true });
     }
 }

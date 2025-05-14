@@ -9,20 +9,18 @@ using Nop.Web.Framework.Infrastructure;
 namespace Nop.Plugin.Widgets.ProductDescriptionExt;
 public class ProductDescriptionExtPlugin : BasePlugin, IWidgetPlugin
 {
-    private readonly IWebHelper _webHelper;
     protected readonly ILocalizationService _localizationService;
-    public ProductDescriptionExtPlugin(ILocalizationService localizationService, IWebHelper webHelper)
+    public ProductDescriptionExtPlugin(
+        ILocalizationService localizationService
+        )
     {
         _localizationService = localizationService;
-        _webHelper = webHelper;
     }
     // Invoking the viewcomponents.
     public bool HideInWidgetList => false;
     public Task<IList<string>> GetWidgetZonesAsync()
     {
-        return Task.FromResult<IList<string>>(new List<string> {
-                    AdminWidgetZones.ProductDetailsBlock
-                });
+        return Task.FromResult<IList<string>>(new List<string> { AdminWidgetZones.ProductDetailsBlock });
     }
     public Type GetWidgetViewComponent(string widgetZone)
     {
@@ -58,7 +56,13 @@ public class ProductDescriptionExtPlugin : BasePlugin, IWidgetPlugin
             ["Admin.ProductDescription"] = "Product additional description",
             ["Admin.Catalog.Products.ProductDescription.SaveBeforeEdit"] = "Please save the product before adding extra description",
             ["Admin.ProductDescriptionExt.Fields.Description"] = "Description",
-            ["Admin.ProductDescriptionExt.Fields.Description.Hint"] = "Enter your extra description here"
+            ["Admin.ProductDescriptionExt.Fields.Description.Hint"] = "Enter your extra description here",
+            ["Admin.ProductDescription.BlankDescription"] = "Please enter some description",
+            ["Admin.ProductDescription.SavedDescription"] = "Description successfully saved!",
+            ["Admin.ProductDescription.FailedDescription"] = "Falide to save",
+            ["Admin.ProductDescription.ErrorDescription"] = "An error occurred while saving."
+
+
         };
     }
 }

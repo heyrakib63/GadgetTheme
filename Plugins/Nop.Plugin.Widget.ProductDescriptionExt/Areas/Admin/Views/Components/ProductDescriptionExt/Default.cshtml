@@ -39,27 +39,25 @@
 
 			var description = tinymce.get('Description') ? tinymce.get('Description').getContent() : $('#Description').val();
 			var productId = @Model.ProductId;
-			console.log("productId:", productId);
-			console.log("description:", description);
 
 			if (!description) {
-				alert("Please enter some description");
+				alert("@T("Admin.ProductDescription.BlankDescription")");
 				return;
 			}
 
 			$.ajax({
 				type: "POST",
-				url: "@Url.Action("CreateOrUpdateDescription", "ProductDescriptionExt", new { area = "Admin" })",
+				url: "@Url.Action("CreateDescription", "ProductDescriptionExt", new { area = "Admin" })",
 				data: { productId: productId, description: description },
 				success: function (response) {
 					if (response.success) {
-						alert("Description successfully saved!");
+						alert("@T("Admin.ProductDescription.SavedDescription")");
 					} else {
-						alert("Saving failed.");
+						alert("@T("Admin.ProductDescription.FailedDescription")");
 					}
 				},
 				error: function () {
-					alert("An error occurred while saving.");
+					alert("@T("Admin.ProductDescription.ErrorDescription")");
 				}
 			});
 		});

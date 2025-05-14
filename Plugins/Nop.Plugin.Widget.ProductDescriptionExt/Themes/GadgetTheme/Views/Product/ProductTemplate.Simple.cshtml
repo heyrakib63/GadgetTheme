@@ -1,14 +1,4 @@
 ﻿@model ProductDetailsModel
-
-@using Nop.Core
-@using Nop.Core.Domain.Catalog
-@using Nop.Core.Domain.Seo
-@using Nop.Services.Html
-
-@inject IHtmlFormatter htmlFormatter
-@inject IWebHelper webHelper
-@inject SeoSettings seoSettings
-
 @{
     Layout = "_ColumnsOne";
 
@@ -80,10 +70,10 @@
                         </div>
                         @if (!string.IsNullOrEmpty(Model.ShortDescription))
                         {
-                            <div class="short-description">
-                                @Html.Raw(Model.ShortDescription)
+							<div class="short-description">
+								@Html.Raw(Model.ShortDescription)
 								<br />
-								@if (Model.CustomProperties != null && Model.CustomProperties.ContainsKey("ExtraDescription"))
+								@if (Model.CustomProperties != null && Model.CustomProperties.ContainsKey(ProductDescriptionExtDefaults.ExtraDescription))
 								{
 									<div class="extra-description card mt-4">
 										<div class="card-header bg-light border-bottom">
@@ -92,11 +82,11 @@
 											</h4>
 										</div>
 										<div class="card-body">
-											@Html.Raw(Model.CustomProperties["ExtraDescription"])
+											@Html.Raw(Model.CustomProperties[ProductDescriptionExtDefaults.ExtraDescription])
 										</div>
 									</div>
 								}
-                            </div>
+							</div>
                         }
                         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->

@@ -1,5 +1,4 @@
-﻿using Nop.Services.Catalog;
-using Nop.Services.Events;
+﻿using Nop.Services.Events;
 using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Models;
 using Nop.Web.Models.Catalog;
@@ -24,7 +23,7 @@ public class ModelEventCunsumer : IConsumer<ModelPreparedEvent<BaseNopModel>>
             var extraDescription = await _productDescriptionService.GetExtraDescriptionByProductIdAsync(model.Breadcrumb.ProductId);
 
             if (!string.IsNullOrEmpty(extraDescription))
-                model.CustomProperties["ExtraDescription"] = extraDescription;
+                model.CustomProperties[ProductDescriptionExtDefaults.ExtraDescription] = extraDescription;
         }
     }
 }

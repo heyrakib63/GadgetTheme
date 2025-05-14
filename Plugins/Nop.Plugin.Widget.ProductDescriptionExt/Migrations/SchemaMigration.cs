@@ -9,9 +9,8 @@ namespace Nop.Plugin.Misc.ProductDescriptionExt.Migrations;
 public class SchemaMigration : AutoReversingMigration
 {
     public override void Up()
-    {  
-        var productDescriptionTable = nameof(ProductDescription);
-        if (!Schema.Table(productDescriptionTable).Exists())
+    {
+        if (!Schema.Table(nameof(ProductDescription)).Exists())
             Create.TableFor<ProductDescription>();
     }
 }

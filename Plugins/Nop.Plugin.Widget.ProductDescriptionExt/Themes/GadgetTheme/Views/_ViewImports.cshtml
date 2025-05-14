@@ -1,25 +1,38 @@
 ﻿@inherits Nop.Web.Framework.Mvc.Razor.NopRazorPage<TModel>
-@inject Nop.Services.Common.IGenericAttributeService genericAttributeService
-@inject Nop.Core.IWorkContext workContext
+
+@inject IGenericAttributeService genericAttributeService
+@inject IWorkContext workContext
 @inject INopHtmlHelper NopHtml
+@inject IHtmlFormatter htmlFormatter
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
+
+@using Nop.Web
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Nop.Web.Framework
-@addTagHelper *, NopStation.Plugin.Misc.Actions
-
-@* included the using portions from nop.web public view import *@
 @using System.Globalization;
+@using System.Net;
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Mvc.ViewFeatures
+@using Microsoft.AspNetCore.Routing
 @using Microsoft.Extensions.Primitives
-@using static Nop.Services.Common.NopLinksDefaults
 @using Nop.Core
-@using Nop.Services.Customers
+@using Nop.Core.Domain.Common
+@using Nop.Core.Events
+@using Nop.Core.Infrastructure
+@using Nop.Services.Common
+@using static Nop.Services.Common.NopLinksDefaults
+@using Nop.Web.Framework.Models.DataTables
+@using Nop.Plugin.Widget.ProductDescriptionExt.Areas.Admin.Models
+@using Nop.Plugin.Widget.ProductDescriptionExt.Domain
+
 @using Nop.Web.Components
 @using Nop.Web.Extensions
 @using Nop.Web.Framework
 @using Nop.Web.Framework.Events
 @using Nop.Web.Framework.Extensions
 @using Nop.Web.Framework.Infrastructure
+@using Nop.Web.Framework.Menu
 @using Nop.Web.Framework.Models
 @using Nop.Web.Framework.Models.Cms
 @using Nop.Web.Framework.Mvc.Routing
@@ -27,29 +40,8 @@
 @using Nop.Web.Framework.Security.Honeypot
 @using Nop.Web.Framework.Themes
 @using Nop.Web.Framework.UI
-@using Nop.Web.Models.Blogs
-@using Nop.Web.Models.Boards
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Seo
+@using Nop.Plugin.Widget.ProductDescriptionExt
+@using Nop.Services.Html
 @using Nop.Web.Models.Catalog
-@using Nop.Web.Models.Checkout
-@using Nop.Web.Models.Common
-@using Nop.Web.Models.Customer
-@using Nop.Web.Models.Media
-@using Nop.Web.Models.News
-@using Nop.Web.Models.Newsletter
-@using Nop.Web.Models.Order
-@using Nop.Web.Models.Polls
-@using Nop.Web.Models.PrivateMessages
-@using Nop.Web.Models.Profile
-@using Nop.Web.Models.ShoppingCart
-@using Nop.Web.Models.Sitemap
-@using Nop.Web.Models.Topics
-@using Nop.Web.Models.Vendors
-@using Microsoft.AspNetCore.Mvc.Rendering
-@using Microsoft.AspNetCore.Routing
-@using Nop.Core.Domain.Common
-@using Nop.Core.Infrastructure
-@using Nop.Services.Events
-@using Nop.Web.Framework.Models.DataTables
-@using System.Linq
-
-

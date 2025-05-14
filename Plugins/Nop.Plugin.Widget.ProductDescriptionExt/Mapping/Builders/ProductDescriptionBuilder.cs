@@ -9,6 +9,6 @@ public class ProductDescriptionBuilder : NopEntityBuilder<ProductDescription>
     {
         table.WithColumn(nameof(ProductDescription.Id)).AsInt32().PrimaryKey().Identity()
         .WithColumn(nameof(ProductDescription.ProductId)).AsInt32().NotNullable().ForeignKey("Product","Id")
-        .WithColumn(nameof(ProductDescription.Description)).AsString(int.MaxValue).Nullable();
+        .WithColumn(nameof(ProductDescription.Description)).AsString(400).Nullable();
     }
 }

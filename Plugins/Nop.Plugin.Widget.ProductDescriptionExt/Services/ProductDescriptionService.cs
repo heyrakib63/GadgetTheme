@@ -15,14 +15,14 @@ public class ProductDescriptionService : IProductDescriptionService
         _productDescriptionRepository = productDescriptionRepository;
         _staticCacheManager = staticCacheManager;
     }
-    public async Task InsertOrUpdateDescriptionAsync(int productId, string description)
+    public async Task InsertDescriptionAsync(int productId, string description)
     {
+        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productId);
         var entity = await _productDescriptionRepository.Table.FirstOrDefaultAsync(x => x.ProductId == productId);
         if (entity != null)
         {
             entity.Description = description;
             await _productDescriptionRepository.UpdateAsync(entity);
-            await _staticCacheManager.RemoveByPrefixAsync(ModelCacheKey.ProductDescriptionByProductIdPrefix);
         }
         else
         {
@@ -32,7 +32,7 @@ public class ProductDescriptionService : IProductDescriptionService
                 Description = description
             });
         }
-        
+        await _staticCacheManager.SetAsync(cacheKey, description);
     }
 
     public async Task<string> GetExtraDescriptionByProductIdAsync(int productId)
