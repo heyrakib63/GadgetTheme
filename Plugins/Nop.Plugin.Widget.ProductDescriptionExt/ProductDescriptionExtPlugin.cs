@@ -60,9 +60,9 @@ public class ProductDescriptionExtPlugin : BasePlugin, IWidgetPlugin
             ["Admin.ProductDescription.BlankDescription"] = "Please enter some description",
             ["Admin.ProductDescription.SavedDescription"] = "Description successfully saved!",
             ["Admin.ProductDescription.FailedDescription"] = "Falide to save",
-            ["Admin.ProductDescription.ErrorDescription"] = "An error occurred while saving."
-
-
+            ["Admin.ProductDescription.ErrorDescription"] = "An error occurred while saving.",
+            ["ShoppingCart.AddToWishList"] = "Add to Wishlist",
+            ["Admin.ProductDescriptionExt.Fields.Description.MaxLengthValidation"] = "Description cannot exceed 4000 characters",
         };
     }
 }

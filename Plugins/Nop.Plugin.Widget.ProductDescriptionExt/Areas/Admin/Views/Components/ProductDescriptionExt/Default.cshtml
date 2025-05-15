@@ -43,11 +43,14 @@
 			if (!description) {
 				alert("@T("Admin.ProductDescription.BlankDescription")");
 				return;
+			} else if(description.length > 400){
+				alert("@T("Admin.ProductDescriptionExt.Fields.Description.MaxLengthValidation")");
+				return;
 			}
 
 			$.ajax({
 				type: "POST",
-				url: "@Url.Action("CreateDescription", "ProductDescriptionExt", new { area = "Admin" })",
+				url: "@Url.Action("Create", "ProductDescriptionExt", new { area = "Admin" })",
 				data: { productId: productId, description: description },
 				success: function (response) {
 					if (response.success) {

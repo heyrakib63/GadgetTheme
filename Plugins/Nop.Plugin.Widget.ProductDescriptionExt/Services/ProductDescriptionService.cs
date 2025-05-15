@@ -1,4 +1,6 @@
-﻿using Nop.Core.Caching;
+﻿using System.Runtime.InteropServices;
+using Microsoft.Identity.Client;
+using Nop.Core.Caching;
 using Nop.Data;
 using Nop.Plugin.Widget.ProductDescriptionExt.Domain;
 
@@ -18,20 +20,24 @@ public class ProductDescriptionService : IProductDescriptionService
     public async Task InsertDescriptionAsync(int productId, string description)
     {
         var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productId);
-        var entity = await _productDescriptionRepository.Table.FirstOrDefaultAsync(x => x.ProductId == productId);
-        if (entity != null)
+        await _productDescriptionRepository.InsertAsync(new ProductDescription
         {
-            entity.Description = description;
-            await _productDescriptionRepository.UpdateAsync(entity);
-        }
-        else
-        {
-            await _productDescriptionRepository.InsertAsync(new ProductDescription
-            {
-                ProductId = productId,
-                Description = description
-            });
-        }
+            ProductId = productId,
+            Description = description
+        });
+        await _staticCacheManager.SetAsync(cacheKey, description);
+    }
+    
+    public async Task UpdateDescriptionAsync(int productId, string description)
+    {
+        var entity = await _productDescriptionRepository.Table
+            .FirstOrDefaultAsync(x => x.ProductId == productId);
+
+        entity.Description = description;
+        await _productDescriptionRepository.UpdateAsync(entity);
+
+        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productId);
+        await _staticCacheManager.RemoveByPrefixAsync(ModelCacheKey.ProductDescriptionByProductIdPrefix);
         await _staticCacheManager.SetAsync(cacheKey, description);
     }
 
@@ -46,7 +52,6 @@ public class ProductDescriptionService : IProductDescriptionService
                 .Select(pd => pd.Description)
                 .FirstOrDefaultAsync();
         });
-
         return description;
     }
 }

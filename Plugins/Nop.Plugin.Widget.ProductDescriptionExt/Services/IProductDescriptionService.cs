@@ -3,5 +3,6 @@
 public interface IProductDescriptionService
 {
     Task InsertDescriptionAsync(int productId, string description);
+    Task UpdateDescriptionAsync(int productId, string description);
     Task<string> GetExtraDescriptionByProductIdAsync(int productId);
 }
