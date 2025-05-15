@@ -49,7 +49,6 @@ public class ProductDescriptionExtController : BasePluginController
             productDescription.Description = model.Description;
             await _productDescriptionService.UpdateDescriptionAsync(productDescription);
         }
-        //return Json(new { success = true });
         return Json(new { Result = true });
     }
 }
