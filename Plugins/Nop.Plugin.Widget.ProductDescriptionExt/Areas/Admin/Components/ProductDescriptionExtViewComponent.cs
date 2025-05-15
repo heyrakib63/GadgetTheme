@@ -20,11 +20,11 @@ public class ProductDescriptionExtViewComponent : ViewComponent
         {
             productId = productModel.Id;
         }
-        var extraDescription = await _productDescriptionService.GetExtraDescriptionByProductIdAsync(productId);
+        var productDescription = await _productDescriptionService.GetProductDescriptionByProductIdAsync(productId);
         var viewModel = new ProductDescriptionExtModel
         {
             ProductId = productId,
-            Description = extraDescription
+            Description = productDescription.Description
         };
         return View(viewModel);
     }

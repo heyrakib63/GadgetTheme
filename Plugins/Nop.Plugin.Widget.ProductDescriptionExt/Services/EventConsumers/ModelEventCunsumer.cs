@@ -20,10 +20,10 @@ public class ModelEventCunsumer : IConsumer<ModelPreparedEvent<BaseNopModel>>
         if(modelType is not null && modelType is ProductDetailsModel productDetailsModel)
         {
             var model = productDetailsModel;
-            var extraDescription = await _productDescriptionService.GetExtraDescriptionByProductIdAsync(model.Breadcrumb.ProductId);
+            var productDescription = await _productDescriptionService.GetProductDescriptionByProductIdAsync(model.Breadcrumb.ProductId);
 
-            if (!string.IsNullOrEmpty(extraDescription))
-                model.CustomProperties[ProductDescriptionExtDefaults.ExtraDescription] = extraDescription;
+            if (productDescription!=null)
+                model.CustomProperties[ProductDescriptionExtDefaults.ExtraDescription] = productDescription.Description;
         }
     }
 }

@@ -33,32 +33,30 @@
 		}
 	</div>
 </nop-card>
+
 <script>
-	$(document).ready(function () {
-		$('#btnSaveDescription').on('click', function () {
-
-			var description = tinymce.get('Description') ? tinymce.get('Description').getContent() : $('#Description').val();
-			var productId = @Model.ProductId;
-
-			var model = {
-				ProductId: productId,
+	$(function() {
+		$('#btnSaveDescription').click(function () {
+			let description = tinymce.get('Description') ? tinymce.get('Description').getContent() : $('#Description').val();
+			var postData = {
+				ProductId: @Model.ProductId,
 				Description: description
-			}
+			};
+			addAntiForgeryToken(postData);
+
+			console.log(postData);
 
 			$.ajax({
+				cache: false,
 				type: "POST",
-				url: "@Url.Action("Create", "ProductDescriptionExt", new { area = "Admin" })",
-				contentType: "application/json; charset=utf-8",
-				data: JSON.stringify(model),
-				success: function (response) {
-					if (response.success) {
+				url: "@Html.Raw(Url.Action("Create", "ProductDescriptionExt" , new { area = "Admin"}))",
+				data: postData,
+				success: function (data, textStatus, jqXHR) {
+					if (data.Result) {
 						alert("@T("Admin.ProductDescription.SavedDescription")");
 					} else {
-						alert(response.message || "@T("Admin.ProductDescription.FailedDescription")");
+						display_nop_error(data);
 					}
-				},
-				error: function () {
-					alert("@T("Admin.ProductDescription.ErrorDescription")");
 				}
 			});
 		});

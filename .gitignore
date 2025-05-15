@@ -364,7 +364,6 @@ FodyWeavers.xsd
 
 #Ignore other files that does not need to be committed
 Presentation/Nop.Web/wwwroot/images/thumbs/
-Presentation/Nop.Web/App_Data/plugin.json
 
 #Ignore plugins that I build
 Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/
