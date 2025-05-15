@@ -40,23 +40,21 @@
 			var description = tinymce.get('Description') ? tinymce.get('Description').getContent() : $('#Description').val();
 			var productId = @Model.ProductId;
 
-			if (!description) {
-				alert("@T("Admin.ProductDescription.BlankDescription")");
-				return;
-			} else if(description.length > 400){
-				alert("@T("Admin.ProductDescriptionExt.Fields.Description.MaxLengthValidation")");
-				return;
+			var model = {
+				ProductId: productId,
+				Description: description
 			}
 
 			$.ajax({
 				type: "POST",
 				url: "@Url.Action("Create", "ProductDescriptionExt", new { area = "Admin" })",
-				data: { productId: productId, description: description },
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify(model),
 				success: function (response) {
 					if (response.success) {
 						alert("@T("Admin.ProductDescription.SavedDescription")");
 					} else {
-						alert("@T("Admin.ProductDescription.FailedDescription")");
+						alert(response.message || "@T("Admin.ProductDescription.FailedDescription")");
 					}
 				},
 				error: function () {

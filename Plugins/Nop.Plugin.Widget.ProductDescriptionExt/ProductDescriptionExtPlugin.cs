@@ -61,8 +61,8 @@ public class ProductDescriptionExtPlugin : BasePlugin, IWidgetPlugin
             ["Admin.ProductDescription.SavedDescription"] = "Description successfully saved!",
             ["Admin.ProductDescription.FailedDescription"] = "Falide to save",
             ["Admin.ProductDescription.ErrorDescription"] = "An error occurred while saving.",
-            ["ShoppingCart.AddToWishList"] = "Add to Wishlist",
-            ["Admin.ProductDescriptionExt.Fields.Description.MaxLengthValidation"] = "Description cannot exceed 4000 characters",
+            ["Admin.ProductDescriptionExt.Fields.Description.MaxLengthValidation"] = "Description cannot exceed 400 characters",
+            ["Admin.ProductDescriptionExt.Fields.Description.MinLengthValidation"] = "Description must be at least 15 characters long"
         };
     }
 }

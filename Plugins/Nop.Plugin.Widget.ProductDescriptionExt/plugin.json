@@ -2,7 +2,7 @@
   "Group": "Widget",
   "FriendlyName": "Product Description Extension",
   "SystemName": "Widget.ProductDescriptionExt",
-  "Version": "1.03",
+  "Version": "1.05",
   "SupportedVersions": [
     "4.80"
   ],

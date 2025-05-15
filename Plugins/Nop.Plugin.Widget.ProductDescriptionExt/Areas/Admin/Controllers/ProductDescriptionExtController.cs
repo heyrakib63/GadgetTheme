@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Nop.Core.Caching;
+using Nop.Plugin.Widget.ProductDescriptionExt.Areas.Admin.Models;
 using Nop.Plugin.Widget.ProductDescriptionExt.Services;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
@@ -19,17 +20,25 @@ public class ProductDescriptionExtController : BasePluginController
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(int productId, string description)
+    public async Task<IActionResult> Create([FromBody] ProductDescriptionExtModel model)
     {
-        var hasDescription = await _productDescriptionService.GetExtraDescriptionByProductIdAsync(productId);
-
-        if (String.IsNullOrEmpty(hasDescription))
+        if (!ModelState.IsValid)
         {
-            await _productDescriptionService.InsertDescriptionAsync(productId, description);
+            var firstError = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault();
+            return Json(new { success = false, message = firstError });
+        }
+        var description = await _productDescriptionService.GetExtraDescriptionByProductIdAsync(model.ProductId);
+
+        if (String.IsNullOrEmpty(description))
+        {
+            await _productDescriptionService.InsertDescriptionAsync(model);
         }
         else
         {
-            await _productDescriptionService.UpdateDescriptionAsync(productId, description);
+            await _productDescriptionService.UpdateDescriptionAsync(model);
         } 
         return Json(new { success = true });
     }

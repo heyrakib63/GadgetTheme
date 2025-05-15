@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client;
 using Nop.Core.Caching;
 using Nop.Data;
+using Nop.Plugin.Widget.ProductDescriptionExt.Areas.Admin.Models;
 using Nop.Plugin.Widget.ProductDescriptionExt.Domain;
 
 namespace Nop.Plugin.Widget.ProductDescriptionExt.Services;
@@ -17,28 +18,28 @@ public class ProductDescriptionService : IProductDescriptionService
         _productDescriptionRepository = productDescriptionRepository;
         _staticCacheManager = staticCacheManager;
     }
-    public async Task InsertDescriptionAsync(int productId, string description)
+    public async Task InsertDescriptionAsync(ProductDescriptionExtModel model)
     {
-        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productId);
+        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, model.ProductId);
         await _productDescriptionRepository.InsertAsync(new ProductDescription
         {
-            ProductId = productId,
-            Description = description
+            ProductId = model.ProductId,
+            Description = model.Description
         });
-        await _staticCacheManager.SetAsync(cacheKey, description);
+        await _staticCacheManager.SetAsync(cacheKey, model.Description);
     }
     
-    public async Task UpdateDescriptionAsync(int productId, string description)
+    public async Task UpdateDescriptionAsync(ProductDescriptionExtModel model)
     {
         var entity = await _productDescriptionRepository.Table
-            .FirstOrDefaultAsync(x => x.ProductId == productId);
+            .FirstOrDefaultAsync(x => x.ProductId == model.ProductId);
 
-        entity.Description = description;
+        entity.Description = model.Description;
         await _productDescriptionRepository.UpdateAsync(entity);
 
-        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productId);
+        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, model.ProductId);
         await _staticCacheManager.RemoveByPrefixAsync(ModelCacheKey.ProductDescriptionByProductIdPrefix);
-        await _staticCacheManager.SetAsync(cacheKey, description);
+        await _staticCacheManager.SetAsync(cacheKey, model.Description);
     }
 
     public async Task<string> GetExtraDescriptionByProductIdAsync(int productId)
