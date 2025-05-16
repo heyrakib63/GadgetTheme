@@ -8,11 +8,11 @@
   font-size: 12px;
   width: 80%;
 }
+
 .buttons.extra-product-description button.button-2.product-box-add-to-wishlist-button:hover {
   background: #4ab2f1;
   transition: 0.1s;
 }
-
 
 .item-box .add-info .buttons.extra-product-description {
   text-align: center;
