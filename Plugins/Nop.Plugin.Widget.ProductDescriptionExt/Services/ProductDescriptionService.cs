@@ -20,17 +20,14 @@ public class ProductDescriptionService : IProductDescriptionService
     }
     public async Task InsertDescriptionAsync(ProductDescription productDescription)
     {
-        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productDescription.ProductId);
         await _productDescriptionRepository.InsertAsync(productDescription);
-        await _staticCacheManager.SetAsync(cacheKey, productDescription);
+        await _staticCacheManager.RemoveByPrefixAsync(ModelCacheKey.ProductDescriptionByProductIdPrefix);
     }
     
     public async Task UpdateDescriptionAsync(ProductDescription productDescription)
     {
         await _productDescriptionRepository.UpdateAsync(productDescription);
-        var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(ModelCacheKey.ProductDescriptionByProductIdCacheKey, productDescription.ProductId);
         await _staticCacheManager.RemoveByPrefixAsync(ModelCacheKey.ProductDescriptionByProductIdPrefix);
-        await _staticCacheManager.SetAsync(cacheKey, productDescription);
     }
 
     public async Task<ProductDescription> GetProductDescriptionByProductIdAsync(int productId)
