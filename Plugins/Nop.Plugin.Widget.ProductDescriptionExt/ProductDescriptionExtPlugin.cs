@@ -1,0 +1,68 @@
+﻿
+using Nop.Core;
+using Nop.Plugin.Widget.ProductDescriptionExt.Areas.Admin.Components;
+using Nop.Services.Cms;
+using Nop.Services.Localization;
+using Nop.Services.Plugins;
+using Nop.Web.Framework.Infrastructure;
+
+namespace Nop.Plugin.Widgets.ProductDescriptionExt;
+public class ProductDescriptionExtPlugin : BasePlugin, IWidgetPlugin
+{
+    protected readonly ILocalizationService _localizationService;
+    public ProductDescriptionExtPlugin(
+        ILocalizationService localizationService
+        )
+    {
+        _localizationService = localizationService;
+    }
+    // Invoking the viewcomponents.
+    public bool HideInWidgetList => false;
+    public Task<IList<string>> GetWidgetZonesAsync()
+    {
+        return Task.FromResult<IList<string>>(new List<string> { AdminWidgetZones.ProductDetailsBlock });
+    }
+    public Type GetWidgetViewComponent(string widgetZone)
+    {
+        if (widgetZone == AdminWidgetZones.ProductDetailsBlock)
+        {
+            return typeof(ProductDescriptionExtViewComponent);
+        }
+        return null;
+    }
+    // Install and Uninstall Logics
+    public override async Task InstallAsync()
+    {
+        await _localizationService.AddOrUpdateLocaleResourceAsync(GetLocaleResources());
+        await base.InstallAsync();
+    }
+
+    public override async Task UninstallAsync()
+    {
+        await base.UninstallAsync();
+    }
+
+    public override async Task UpdateAsync(string oldVersion, string newVersion)
+    {
+        await _localizationService.AddOrUpdateLocaleResourceAsync(GetLocaleResources());
+
+        await base.UpdateAsync(oldVersion, newVersion);
+    }
+
+    private Dictionary<string, string> GetLocaleResources()
+    {
+        return new Dictionary<string, string>
+        {
+            ["Admin.ProductDescription"] = "Product additional description",
+            ["Admin.Catalog.Products.ProductDescription.SaveBeforeEdit"] = "Please save the product before adding extra description",
+            ["Admin.ProductDescriptionExt.Fields.Description"] = "Description",
+            ["Admin.ProductDescriptionExt.Fields.Description.Hint"] = "Enter your extra description here",
+            ["Admin.ProductDescription.BlankDescription"] = "Please enter some description",
+            ["Admin.ProductDescription.SavedDescription"] = "Description successfully saved!",
+            ["Admin.ProductDescription.FailedDescription"] = "Falide to save",
+            ["Admin.ProductDescription.ErrorDescription"] = "An error occurred while saving.",
+            ["Admin.ProductDescriptionExt.Fields.Description.MaxLengthValidation"] = "Description cannot exceed 400 characters",
+            ["Admin.ProductDescriptionExt.Fields.Description.MinLengthValidation"] = "Description must be at least 15 characters long"
+        };
+    }
+}

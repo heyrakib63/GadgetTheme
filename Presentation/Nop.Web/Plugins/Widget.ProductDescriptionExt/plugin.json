@@ -1,0 +1,16 @@
+﻿{
+  "Group": "Widget",
+  "FriendlyName": "Product Description Extension",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "Rakib Hossain",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widget.ProductDescriptionExt.dll",
+  "Description": "This is a plugin that allows the admin to add new content inside the product details view",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [],
+  "SystemName": "Widget.ProductDescriptionExt",
+  "Version": "1.00"
+}
