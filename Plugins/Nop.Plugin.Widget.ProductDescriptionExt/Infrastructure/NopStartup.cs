@@ -17,7 +17,6 @@ public class NopStartup : INopStartup
             options.ViewLocationExpanders.Add(new ViewLocationExpander());
         });
         services.AddScoped<IProductDescriptionService, ProductDescriptionService>();
-        services.AddScoped<CustomerController, CustomerExtendedController>();
     }
     public void Configure(IApplicationBuilder application)
     {

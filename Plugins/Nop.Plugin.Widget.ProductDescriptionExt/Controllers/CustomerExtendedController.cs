@@ -34,11 +34,62 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Messages;
 using Nop.Web.Models.Customer;
+using Nop.Web.Framework.Controllers;
+using Nop.Services.Events;
+using Microsoft.Extensions.Primitives;
+using Nop.Core.Domain.Catalog;
 
 namespace Nop.Plugin.Widget.ProductDescriptionExt.Controllers;
 
-public partial class CustomerExtendedController : CustomerController
+public partial class CustomerExtendedController : BasePluginController
 {
+    protected readonly AddressSettings _addressSettings;
+    protected readonly CaptchaSettings _captchaSettings;
+    protected readonly CustomerSettings _customerSettings;
+    protected readonly DateTimeSettings _dateTimeSettings;
+    protected readonly ForumSettings _forumSettings;
+    protected readonly GdprSettings _gdprSettings;
+    protected readonly HtmlEncoder _htmlEncoder;
+    protected readonly IAddressModelFactory _addressModelFactory;
+    protected readonly IAddressService _addressService;
+    protected readonly IAttributeParser<AddressAttribute, AddressAttributeValue> _addressAttributeParser;
+    protected readonly IAttributeParser<CustomerAttribute, CustomerAttributeValue> _customerAttributeParser;
+    protected readonly IAttributeService<CustomerAttribute, CustomerAttributeValue> _customerAttributeService;
+    protected readonly IAuthenticationService _authenticationService;
+    protected readonly ICountryService _countryService;
+    protected readonly ICurrencyService _currencyService;
+    protected readonly ICustomerActivityService _customerActivityService;
+    protected readonly ICustomerModelFactory _customerModelFactory;
+    protected readonly ICustomerRegistrationService _customerRegistrationService;
+    protected readonly ICustomerService _customerService;
+    protected readonly IDownloadService _downloadService;
+    protected readonly IEventPublisher _eventPublisher;
+    protected readonly IExportManager _exportManager;
+    protected readonly IExternalAuthenticationService _externalAuthenticationService;
+    protected readonly IGdprService _gdprService;
+    protected readonly IGenericAttributeService _genericAttributeService;
+    protected readonly IGiftCardService _giftCardService;
+    protected readonly ILocalizationService _localizationService;
+    protected readonly ILogger _logger;
+    protected readonly IMultiFactorAuthenticationPluginManager _multiFactorAuthenticationPluginManager;
+    protected readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
+    protected readonly INotificationService _notificationService;
+    protected readonly IOrderService _orderService;
+    protected readonly IPermissionService _permissionService;
+    protected readonly IPictureService _pictureService;
+    protected readonly IPriceFormatter _priceFormatter;
+    protected readonly IProductService _productService;
+    protected readonly IStateProvinceService _stateProvinceService;
+    protected readonly IStoreContext _storeContext;
+    protected readonly ITaxService _taxService;
+    protected readonly IWorkContext _workContext;
+    protected readonly IWorkflowMessageService _workflowMessageService;
+    protected readonly LocalizationSettings _localizationSettings;
+    protected readonly MediaSettings _mediaSettings;
+    protected readonly MultiFactorAuthenticationSettings _multiFactorAuthenticationSettings;
+    protected readonly StoreInformationSettings _storeInformationSettings;
+    protected readonly TaxSettings _taxSettings;
+    private static readonly char[] _separator = [','];
     public CustomerExtendedController(
         AddressSettings addressSettings,
         CaptchaSettings captchaSettings,
@@ -85,59 +136,248 @@ public partial class CustomerExtendedController : CustomerController
         MediaSettings mediaSettings,
         MultiFactorAuthenticationSettings multiFactorAuthenticationSettings,
         StoreInformationSettings storeInformationSettings,
-        TaxSettings taxSettings) : base(
-            addressSettings,
-            captchaSettings,
-            customerSettings,
-            dateTimeSettings,
-            forumSettings,
-            gdprSettings,
-            htmlEncoder,
-            addressModelFactory,
-            addressService,
-            addressAttributeParser,
-            customerAttributeParser,
-            customerAttributeService,
-            authenticationService,
-            countryService,
-            currencyService,
-            customerActivityService,
-            customerModelFactory,
-            customerRegistrationService,
-            customerService,
-            downloadService,
-            eventPublisher,
-            exportManager,
-            externalAuthenticationService,
-            gdprService,
-            genericAttributeService,
-            giftCardService,
-            localizationService,
-            logger,
-            multiFactorAuthenticationPluginManager,
-            newsLetterSubscriptionService,
-            notificationService,
-            orderService,
-            permissionService,
-            pictureService,
-            priceFormatter,
-            productService,
-            stateProvinceService,
-            storeContext,
-            taxService,
-            workContext,
-            workflowMessageService,
-            localizationSettings,
-            mediaSettings,
-            multiFactorAuthenticationSettings,
-            storeInformationSettings,
-            taxSettings)
+        TaxSettings taxSettings
+        )
     {
-
+        _addressSettings = addressSettings;
+        _captchaSettings = captchaSettings;
+        _customerSettings = customerSettings;
+        _dateTimeSettings = dateTimeSettings;
+        _forumSettings = forumSettings;
+        _gdprSettings = gdprSettings;
+        _htmlEncoder = htmlEncoder;
+        _addressModelFactory = addressModelFactory;
+        _addressService = addressService;
+        _addressAttributeParser = addressAttributeParser;
+        _customerAttributeParser = customerAttributeParser;
+        _customerAttributeService = customerAttributeService;
+        _authenticationService = authenticationService;
+        _countryService = countryService;
+        _currencyService = currencyService;
+        _customerActivityService = customerActivityService;
+        _customerModelFactory = customerModelFactory;
+        _customerRegistrationService = customerRegistrationService;
+        _customerService = customerService;
+        _downloadService = downloadService;
+        _eventPublisher = eventPublisher;
+        _exportManager = exportManager;
+        _externalAuthenticationService = externalAuthenticationService;
+        _gdprService = gdprService;
+        _genericAttributeService = genericAttributeService;
+        _giftCardService = giftCardService;
+        _localizationService = localizationService;
+        _logger = logger;
+        _multiFactorAuthenticationPluginManager = multiFactorAuthenticationPluginManager;
+        _newsLetterSubscriptionService = newsLetterSubscriptionService;
+        _notificationService = notificationService;
+        _orderService = orderService;
+        _permissionService = permissionService;
+        _pictureService = pictureService;
+        _priceFormatter = priceFormatter;
+        _productService = productService;
+        _stateProvinceService = stateProvinceService;
+        _storeContext = storeContext;
+        _taxService = taxService;
+        _workContext = workContext;
+        _workflowMessageService = workflowMessageService;
+        _localizationSettings = localizationSettings;
+        _mediaSettings = mediaSettings;
+        _multiFactorAuthenticationSettings = multiFactorAuthenticationSettings;
+        _storeInformationSettings = storeInformationSettings;
+        _taxSettings = taxSettings;
     }
 
+    #region Utilites
+    protected virtual async Task<string> ParseCustomCustomerAttributesAsync(IFormCollection form)
+    {
+        ArgumentNullException.ThrowIfNull(form);
+
+        var attributesXml = "";
+        var attributes = await _customerAttributeService.GetAllAttributesAsync();
+        foreach (var attribute in attributes)
+        {
+            var controlId = $"{NopCustomerServicesDefaults.CustomerAttributePrefix}{attribute.Id}";
+            switch (attribute.AttributeControlType)
+            {
+                case AttributeControlType.DropdownList:
+                case AttributeControlType.RadioList:
+                    {
+                        var ctrlAttributes = form[controlId];
+                        if (!StringValues.IsNullOrEmpty(ctrlAttributes))
+                        {
+                            var selectedAttributeId = int.Parse(ctrlAttributes);
+                            if (selectedAttributeId > 0)
+                                attributesXml = _customerAttributeParser.AddAttribute(attributesXml,
+                                    attribute, selectedAttributeId.ToString());
+                        }
+                    }
+                    break;
+                case AttributeControlType.Checkboxes:
+                    {
+                        var cblAttributes = form[controlId];
+                        if (!StringValues.IsNullOrEmpty(cblAttributes))
+                        {
+                            foreach (var item in cblAttributes.ToString().Split(_separator, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                var selectedAttributeId = int.Parse(item);
+                                if (selectedAttributeId > 0)
+                                    attributesXml = _customerAttributeParser.AddAttribute(attributesXml,
+                                        attribute, selectedAttributeId.ToString());
+                            }
+                        }
+                    }
+                    break;
+                case AttributeControlType.ReadonlyCheckboxes:
+                    {
+                        //load read-only (already server-side selected) values
+                        var attributeValues = await _customerAttributeService.GetAttributeValuesAsync(attribute.Id);
+                        foreach (var selectedAttributeId in attributeValues
+                                     .Where(v => v.IsPreSelected)
+                                     .Select(v => v.Id)
+                                     .ToList())
+                        {
+                            attributesXml = _customerAttributeParser.AddAttribute(attributesXml,
+                                attribute, selectedAttributeId.ToString());
+                        }
+                    }
+                    break;
+                case AttributeControlType.TextBox:
+                case AttributeControlType.MultilineTextbox:
+                    {
+                        var ctrlAttributes = form[controlId];
+                        if (!StringValues.IsNullOrEmpty(ctrlAttributes))
+                        {
+                            var enteredText = ctrlAttributes.ToString().Trim();
+                            attributesXml = _customerAttributeParser.AddAttribute(attributesXml,
+                                attribute, enteredText);
+                        }
+                    }
+                    break;
+                case AttributeControlType.Datepicker:
+                case AttributeControlType.ColorSquares:
+                case AttributeControlType.ImageSquares:
+                case AttributeControlType.FileUpload:
+                //not supported customer attributes
+                default:
+                    break;
+            }
+        }
+
+        return attributesXml;
+    }
+
+    protected virtual void ValidateRequiredConsents(List<GdprConsent> consents, IFormCollection form)
+    {
+        foreach (var consent in consents)
+        {
+            var controlId = $"consent{consent.Id}";
+            var cbConsent = form[controlId];
+            if (StringValues.IsNullOrEmpty(cbConsent) || !cbConsent.ToString().Equals("on"))
+            {
+                ModelState.AddModelError("", consent.RequiredMessage);
+            }
+        }
+    }
+
+    protected virtual async Task LogGdprAsync(Customer customer, CustomerInfoModel oldCustomerInfoModel,
+        CustomerInfoModel newCustomerInfoModel, IFormCollection form)
+    {
+        try
+        {
+            //consents
+            var consents = (await _gdprService.GetAllConsentsAsync()).Where(consent => consent.DisplayOnCustomerInfoPage).ToList();
+            foreach (var consent in consents)
+            {
+                var previousConsentValue = await _gdprService.IsConsentAcceptedAsync(consent.Id, customer.Id);
+                var controlId = $"consent{consent.Id}";
+                var cbConsent = form[controlId];
+                if (!StringValues.IsNullOrEmpty(cbConsent) && cbConsent.ToString().Equals("on"))
+                {
+                    //agree
+                    if (!previousConsentValue.HasValue || !previousConsentValue.Value)
+                    {
+                        await _gdprService.InsertLogAsync(customer, consent.Id, GdprRequestType.ConsentAgree, consent.Message);
+                    }
+                }
+                else
+                {
+                    //disagree
+                    if (!previousConsentValue.HasValue || previousConsentValue.Value)
+                    {
+                        await _gdprService.InsertLogAsync(customer, consent.Id, GdprRequestType.ConsentDisagree, consent.Message);
+                    }
+                }
+            }
+
+            //newsletter subscriptions
+            if (_gdprSettings.LogNewsletterConsent)
+            {
+                if (oldCustomerInfoModel.Newsletter && !newCustomerInfoModel.Newsletter)
+                    await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ConsentDisagree, await _localizationService.GetResourceAsync("Gdpr.Consent.Newsletter"));
+                if (!oldCustomerInfoModel.Newsletter && newCustomerInfoModel.Newsletter)
+                    await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ConsentAgree, await _localizationService.GetResourceAsync("Gdpr.Consent.Newsletter"));
+            }
+
+            //user profile changes
+            if (!_gdprSettings.LogUserProfileChanges)
+                return;
+
+            if (oldCustomerInfoModel.Gender != newCustomerInfoModel.Gender)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.Gender")} = {newCustomerInfoModel.Gender}");
+
+            if (oldCustomerInfoModel.FirstName != newCustomerInfoModel.FirstName)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.FirstName")} = {newCustomerInfoModel.FirstName}");
+
+            if (oldCustomerInfoModel.LastName != newCustomerInfoModel.LastName)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.LastName")} = {newCustomerInfoModel.LastName}");
+
+            if (oldCustomerInfoModel.ParseDateOfBirth() != newCustomerInfoModel.ParseDateOfBirth())
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.DateOfBirth")} = {newCustomerInfoModel.ParseDateOfBirth()}");
+
+            if (oldCustomerInfoModel.Email != newCustomerInfoModel.Email)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.Email")} = {newCustomerInfoModel.Email}");
+
+            if (oldCustomerInfoModel.Company != newCustomerInfoModel.Company)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.Company")} = {newCustomerInfoModel.Company}");
+
+            if (oldCustomerInfoModel.StreetAddress != newCustomerInfoModel.StreetAddress)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.StreetAddress")} = {newCustomerInfoModel.StreetAddress}");
+
+            if (oldCustomerInfoModel.StreetAddress2 != newCustomerInfoModel.StreetAddress2)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.StreetAddress2")} = {newCustomerInfoModel.StreetAddress2}");
+
+            if (oldCustomerInfoModel.ZipPostalCode != newCustomerInfoModel.ZipPostalCode)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.ZipPostalCode")} = {newCustomerInfoModel.ZipPostalCode}");
+
+            if (oldCustomerInfoModel.City != newCustomerInfoModel.City)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.City")} = {newCustomerInfoModel.City}");
+
+            if (oldCustomerInfoModel.County != newCustomerInfoModel.County)
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.County")} = {newCustomerInfoModel.County}");
+
+            if (oldCustomerInfoModel.CountryId != newCustomerInfoModel.CountryId)
+            {
+                var countryName = (await _countryService.GetCountryByIdAsync(newCustomerInfoModel.CountryId))?.Name;
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.Country")} = {countryName}");
+            }
+
+            if (oldCustomerInfoModel.StateProvinceId != newCustomerInfoModel.StateProvinceId)
+            {
+                var stateProvinceName = (await _stateProvinceService.GetStateProvinceByIdAsync(newCustomerInfoModel.StateProvinceId))?.Name;
+                await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ProfileChanged, $"{await _localizationService.GetResourceAsync("Account.Fields.StateProvince")} = {stateProvinceName}");
+            }
+        }
+        catch (Exception exception)
+        {
+            await _logger.ErrorAsync(exception.Message, exception, customer);
+        }
+    }
+
+    #endregion
+
+    #region Methods
     [HttpPost]
-    public override async Task<IActionResult> Info(CustomerInfoModel model, IFormCollection form)
+    public virtual async Task<IActionResult> Info(CustomerInfoModel model, IFormCollection form)
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         if (!await _customerService.IsRegisteredAsync(customer))
@@ -332,7 +572,7 @@ public partial class CustomerExtendedController : CustomerController
     }
 
     [HttpPost]
-    public override async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, IFormCollection form)
+    public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, IFormCollection form)
     {
         var customer = await _workContext.GetCurrentCustomerAsync();
         if (!await _customerService.IsRegisteredAsync(customer))
@@ -379,4 +619,5 @@ public partial class CustomerExtendedController : CustomerController
 
         return View(model);
     }
+    #endregion
 }
