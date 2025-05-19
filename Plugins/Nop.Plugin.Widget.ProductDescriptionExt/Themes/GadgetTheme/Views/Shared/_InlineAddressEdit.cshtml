@@ -1,0 +1,22 @@
+﻿@model CustomerAddressEditModel
+@{
+	//page class
+	NopHtml.AppendPageCssClassParts("html-account-page");
+	NopHtml.AppendPageCssClassParts("html-address-edit-page");
+}
+@{
+	NopHtml.AppendCssFileParts("/Plugins/Widget.ProductDescriptionExt/Themes/GadgetTheme/Content/css/styles.css", string.Empty, true);
+}
+<form asp-route="CustomerAddressEdit" asp-route-addressId="@Model.Address.Id" method="post">
+	<div class="page account-page address-edit-page">
+		<div asp-validation-summary="ModelOnly" class="message-error"></div>
+		@{
+			var dataDictAddress = new ViewDataDictionary(ViewData);
+			dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+			@await Html.PartialAsync("_CreateOrUpdateAddress", Model.Address, dataDictAddress)
+		}
+		<div class="buttons">
+			<button type="submit" class="button-1 save-address-button">@T("Common.Save")</button>
+		</div>
+	</div>
+</form>
