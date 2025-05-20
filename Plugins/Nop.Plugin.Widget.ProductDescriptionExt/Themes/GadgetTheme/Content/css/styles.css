@@ -17,3 +17,7 @@
 .item-box .add-info .buttons.extra-product-description {
   text-align: center;
 }
+
+.address-list-page .buttons {
+  position: relative !important;
+}

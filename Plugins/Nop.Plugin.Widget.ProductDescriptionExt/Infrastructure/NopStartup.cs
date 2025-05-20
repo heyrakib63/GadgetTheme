@@ -19,5 +19,5 @@ public class NopStartup : INopStartup
     public void Configure(IApplicationBuilder application)
     {
     }
-    public int Order => 1000;
+    public int Order => 3050;
 }
