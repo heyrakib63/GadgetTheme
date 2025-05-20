@@ -503,14 +503,13 @@ public partial class CustomerExtendedController : BasePluginController
                     return RedirectToRoute("CustomerInfo");
 
                 var address = addresses.First();
-                address.FirstName = model.FirstName;
-                address.LastName = model.LastName;
-
-                if (ModelState.IsValid)
+                if(address.FirstName != model.FirstName || address.LastName != model.LastName)
                 {
+                    address.FirstName = model.FirstName;
+                    address.LastName = model.LastName;
                     await _addressService.UpdateAddressAsync(address);
                 }
-
+                
                 //newsletter
                 if (_customerSettings.NewsletterEnabled)
                 {
@@ -598,9 +597,12 @@ public partial class CustomerExtendedController : BasePluginController
             await _addressService.UpdateAddressAsync(address);
 
             //Then update the customer table
-            customer.FirstName = model.Address.FirstName;
-            customer.LastName = model.Address.LastName;
-            await _customerService.UpdateCustomerAsync(customer);
+            if(customer.FirstName != model.Address.FirstName || customer.LastName != model.Address.LastName)
+            {
+                customer.FirstName = model.Address.FirstName;
+                customer.LastName = model.Address.LastName;
+                await _customerService.UpdateCustomerAsync(customer);
+            }
 
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.CustomerAddresses.Updated"));
 
