@@ -24,7 +24,7 @@ public class RouteProvider : BaseRouteProvider, IRouteProvider
             pattern: $"{lang}/customer/info",
             defaults: new { controller = "CustomerExtended", action = "Info" });
 
-        endpointRouteBuilder.MapControllerRoute(name: "CustomerAddressEdit",
+        endpointRouteBuilder.MapControllerRoute(name: "CustomerAddressExtendedEdit",
             pattern: $"{lang}/customer/addressedit/{{addressId:min(0)}}",
             defaults: new { controller = "CustomerExtended", action = "AddressEdit" });
 
