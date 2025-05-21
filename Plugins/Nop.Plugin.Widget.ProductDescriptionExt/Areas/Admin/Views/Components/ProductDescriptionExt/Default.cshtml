@@ -1,0 +1,62 @@
+﻿@model ProductDescriptionExtModel
+@addTagHelper *, Nop.Web
+@{
+	const string hideDescriptionBlockAttributeName = "ProductPage.HideDescriptionBlock";
+	var customer = await workContext.GetCurrentCustomerAsync();
+	var hideDescriptionBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideDescriptionBlockAttributeName);
+}
+
+<div asp-validation-summary="All"></div>
+<nop-card asp-name="description-extension-info" asp-icon="fa-solid fa-file" asp-title="Add some extra description" asp-hide-block-attribute-name="@hideDescriptionBlockAttributeName" asp-hide="@hideDescriptionBlock" asp-advanced="false">
+	<div class="card-body">
+		@if (Model.ProductId > 0)
+		{
+			<div class="form-group row">
+				<div class="col-md-3">
+					<nop-label asp-for="Description" />
+				</div>
+				<div class="col-md-9">
+					<nop-editor asp-for="Description" asp-template="RichEditor" />
+					<button id="btnSaveDescription" type="button" class="btn btn-primary">
+						Save Description
+					</button>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="card card-default">
+				<div class="card-body">
+					@T("Admin.Catalog.Products.ProductDescription.SaveBeforeEdit")
+				</div>
+			</div>
+		}
+	</div>
+</nop-card>
+
+<script>
+	$(function() {
+		$('#btnSaveDescription').click(function () {
+			let description = tinymce.get('Description') ? tinymce.get('Description').getContent() : $('#Description').val();
+			var postData = {
+				ProductId: @Model.ProductId,
+				Description: description
+			};
+			addAntiForgeryToken(postData);
+
+			$.ajax({
+				cache: false,
+				type: "POST",
+				url: "@Html.Raw(Url.Action("Create", "ProductDescriptionExt" , new { area = "Admin"}))",
+				data: postData,
+				success: function (data, textStatus, jqXHR) {
+					if (data.Result) {
+						alert("@T("Admin.ProductDescription.SavedDescription")");
+					} else {
+						display_nop_error(data);
+					}
+				}
+			});
+		});
+	});
+</script>

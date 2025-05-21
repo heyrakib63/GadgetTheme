@@ -1,0 +1,40 @@
+﻿@model CustomerAddressListModel
+@{
+	Layout = "_ColumnsTwo";
+
+	//title
+	NopHtml.AddTitleParts(T("PageTitle.Account").Text);
+	//page class
+	NopHtml.AppendPageCssClassParts("html-account-page");
+	NopHtml.AppendPageCssClassParts("html-address-list-page");
+}
+@section left
+{
+	@await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.Addresses })
+}
+<div class="page account-page address-list-page">
+	<div class="page-title">
+		<h1>@T("Account.MyAccount") - @T("Account.CustomerAddresses")</h1>
+	</div>
+	<div class="page-body">
+		@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerAddressesTop, additionalData = Model })
+		@if (Model.Addresses.Count == 0)
+		{
+			<div class="no-data">
+				@T("Account.CustomerAddresses.NoAddresses")
+			</div>
+
+			<div class="add-button">
+				<button type="button" class="button-1 add-address-button" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">@T("Common.AddNew")</button>
+			</div>
+		}
+		else
+		{
+			var address = Model.Addresses[0];
+			<div class="section address-item">
+				@await Html.PartialAsync("_InlineAddressEdit", new CustomerAddressEditModel { Address = address })
+			</div>
+		}
+		@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerAddressesBottom, additionalData = Model })
+	</div>
+</div>

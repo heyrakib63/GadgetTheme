@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+#Ignore other files that does not need to be committed
+Presentation/Nop.Web/wwwroot/images/thumbs/
+
+#Ignore plugins that I build
+Presentation/Nop.Web/Plugins/Widget.ProductDescriptionExt/
+

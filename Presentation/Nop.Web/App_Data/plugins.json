@@ -110,6 +110,10 @@
     {
       "SystemName": "GadgetTheme.SupplierManagement",
       "Version": "1.12"
+    },
+    {
+      "SystemName": "Widget.ProductDescriptionExt",
+      "Version": "1.05"
     }
   ],
   "PluginNamesToUninstall": [],
